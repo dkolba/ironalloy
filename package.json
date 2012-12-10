@@ -1,0 +1,36 @@
+{
+  "name": "ironalloy",
+  "version": "0.0.1",
+  "author": "dkolba",
+  "description": "Flatiron + Redis",
+  "contributors": [ 
+    {
+      "name": "dkolba",
+    }, 
+    {
+      "name": "simonsimonb",
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dkolba/ironalloy.git"
+  },
+  "keywords": [
+    "http",
+    "server",
+	"flatiron",
+	"redis",
+	"cms"
+  ],
+  "dependencies" : {
+	"redis": "latest",
+	"director": "latest",
+	"ecstatic": "latest"
+  },
+  "devDependencies": {
+    
+  },
+  "engines": {
+    "node": ">=0.8.15"
+  }
+}
