@@ -22,6 +22,7 @@
   ],
   "dependencies" : {
     "flatiron": "0.3.0",
+    "union": "0.3.6",
     "director": "1.1.8",
     "redis": "0.8.2",
     "ecstatic": "0.3.0"
