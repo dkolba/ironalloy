@@ -8,30 +8,28 @@ var http = require("http")
   , redisClient = redis.createClient(process.env.redisport, process.env.host)
   , app = flatiron.app;
 
-  redisClient.auth(process.env.redissecret);
+redisClient.auth(process.env.redissecret);
+
+app.use(flatiron.plugins.http);
 
 function helloWorld() {
   this.res.writeHead(200, { 'Content-Type': 'text/plain' })
-    this.res.end('hello world');
-}
+  this.res.end('hello world');
+};
 
-// define a routing table.
-var router = new director.http.Router({
-  '/hello': {
+// define routing table
+var routes = {
+  '/hello' : {
+    '/:test': {
+      get: function (test) {redisClient.set("urls", test);
+             console.log(test)}
+    },
     get: helloWorld
   }
-});
+};
 
-var server = union.createServer({
-  before: [
-    function (req, res) {
-      var found = router.dispatch(req, res);
-        if (!found) {
-          res.emit('next');
-      }
-    }
-  ]
-});
+// inject routing table
+app.router.mount(routes);
 
-server.listen(8080);
+app.start(8080);
 console.log('union with director running on 8080');
