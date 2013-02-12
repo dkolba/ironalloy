@@ -27,17 +27,69 @@ function gettemplate () {
   });
 }
 
+function showIndex() {
+  redisClient.get("root",
+    function(err, reply) {
+      console.log(reply)
+    });
+}
+
+function createPage() {
+  redisClient.get("root",
+    function(err, reply) {
+      console.log(reply)
+    });
+}
+
+function deletePage(pagename) {
+  redisClient.del(pagename,
+    function(err, reply) {
+      console.log(reply)
+    });
+}
+
+function get404() {
+    this.res.writeHead(404, { 'Content-Type': 'text/text' });
+    this.res.end("This is not the page you are looking for");
+    console.log("This is not the page you are looking for");
+  };
+
+
 // Define routing table
 var routes = {
+  '/' : {
+    get: showIndex
+  },
+  '/create' : {
+    get: createPage
+  },
+  '/delete' : {
+    '/:pagename' : {
+      get: deletePage
+    },
+    get: get404
+  },
+  '/update' : {
+    get: function () {
+      console.log("ich will update.html")
+    },
+    post: function () {
+      console.log("ich will ein post-request")
+    }
+  },
   '/hello' : {
     '/:test': {
       get: function (test) {redisClient.set("urls", test);
              console.log(test)}
     },
     get: gettemplate
+  },
+  '/:pagename' : {
+    get: function (pagename) {
+      console.log(pagename)
+    }
   }
 };
-
 // Inject routing table
 app.router.mount(routes);
 
