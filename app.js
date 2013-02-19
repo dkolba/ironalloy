@@ -8,12 +8,17 @@ var http = require("http")
   , plates = require("plates")
   , redis = require("redis")
   , redisClient = redis.createClient(process.env.redisport, process.env.host)
-  , app = flatiron.app;
+  , app = flatiron.app
+  // , st = require(st);
 
 redisClient.auth(process.env.redissecret);
 
 app.use(flatiron.plugins.http);
-
+app.use(flatiron.plugins.static, {
+  dir : __dirname + '/public',
+  url : 'public/'
+});
+console.log(__dirname);
 // Read template from file, render via plates and send response
 function gettemplate (req, res, template, redisdata) {
   fs.readFile('templates/' + template + '.html', "utf8", function (err, data) {
