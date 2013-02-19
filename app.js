@@ -15,27 +15,30 @@ redisClient.auth(process.env.redissecret);
 app.use(flatiron.plugins.http);
 
 // Read template from file, render via plates and send response
-function gettemplate () {
-  var that = this 
-  fs.readFile("templates/template.html", "utf8", function (err, data) {
+function gettemplate (req, res, template, redisdata) {
+  fs.readFile('templates/' + template + '.html', "utf8", function (err, data) {
     if(err) throw err;
-    var content = { "test": "New Value" }
+    console.log(redisdata);
+    var content = { "content": redisdata}
       , output = plates.bind(data, content); 
-    that.res.writeHead(200, { 'Content-Type': 'text/html' });
-    that.res.end(output);
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(output);
     console.log(output);
   });
 }
 
 function showIndex() {
+  var req = this.req
+    , res = this.res;
   redisClient.get("root",
-    function(err, reply) {
-      console.log(reply)
+    function(err, redisdata) {
+      gettemplate(req, res, "base", redisdata);
+      console.log(redisdata);
     });
 }
 
-function createPage() {
-  redisClient.get("root",
+function createPage(pagename) {
+  redisClient.set(pagename,
     function(err, reply) {
       console.log(reply)
     });
@@ -76,13 +79,6 @@ var routes = {
     post: function () {
       console.log("ich will ein post-request")
     }
-  },
-  '/hello' : {
-    '/:test': {
-      get: function (test) {redisClient.set("urls", test);
-             console.log(test)}
-    },
-    get: gettemplate
   },
   '/:pagename' : {
     get: function (pagename) {
