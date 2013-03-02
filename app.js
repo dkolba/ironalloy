@@ -11,6 +11,7 @@ var http = require("http")
   , app = flatiron.app
   // , st = require(st);
 
+// Connect to redis db
 redisClient.auth(process.env.redissecret);
 
 app.use(flatiron.plugins.http);
@@ -18,37 +19,60 @@ app.use(flatiron.plugins.static, {
   dir : __dirname + '/public',
   url : 'public/'
 });
-console.log(__dirname);
+
 // Read template from file, render via plates and send response
 function gettemplate (req, res, template, redisdata) {
   fs.readFile('templates/' + template + '.html', "utf8", function (err, data) {
     if(err) throw err;
-    console.log(redisdata);
     var content = { "content": redisdata}
       , output = plates.bind(data, content); 
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end(output);
-    console.log(output);
   });
 }
 
+// render '/' http request (root)
 function showIndex() {
   var req = this.req
     , res = this.res;
   redisClient.get("root",
     function(err, redisdata) {
+      if(err) throw err;
       gettemplate(req, res, "base", redisdata);
       console.log(redisdata);
     });
 }
 
-function createPage(pagename) {
-  redisClient.set(pagename,
+// Fetch page via pagename from redis and render template
+function showPage(pagename) {
+  var req = this.req
+    , res = this.res;
+  redisClient.get(pagename,
+    function(err, redisdata) {
+      if(err) throw err;
+      gettemplate(req, res, "base", redisdata);
+      console.log(redisdata);
+    });
+}
+
+// Show create form
+function showCreate() {
+  var req = this.req
+    , res = this.res;
+  gettemplate(req, res, "create");
+}
+
+// Send formdata to redis
+function postUpdate() {
+  var req = this.req
+    , formdata = req.body;
+  redisClient.set(formdata.pagename, formdata.pagecontent,
     function(err, reply) {
       console.log(reply)
     });
 }
 
+// Delete page
 function deletePage(pagename) {
   redisClient.del(pagename,
     function(err, reply) {
@@ -69,7 +93,7 @@ var routes = {
     get: showIndex
   },
   '/create' : {
-    get: createPage
+    get: showCreate
   },
   '/delete' : {
     '/:pagename' : {
@@ -79,16 +103,12 @@ var routes = {
   },
   '/update' : {
     get: function () {
-      console.log("ich will update.html")
+      console.log("show all pages")
     },
-    post: function () {
-      console.log("ich will ein post-request")
-    }
+    post: postUpdate
   },
   '/:pagename' : {
-    get: function (pagename) {
-      console.log(pagename)
-    }
+    get: showPage
   }
 };
 // Inject routing table
