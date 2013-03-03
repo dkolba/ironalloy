@@ -14,7 +14,12 @@ var http = require("http")
 // Connect to redis db
 redisClient.auth(process.env.redissecret);
 
-app.use(flatiron.plugins.http);
+// Use flatiron http server combo (director/union)
+app.use(flatiron.plugins.http, {
+  onError:show404
+});
+
+// Use st as file server
 app.use(flatiron.plugins.static, {
   dir : __dirname + '/public',
   url : 'public/'
@@ -23,7 +28,7 @@ app.use(flatiron.plugins.static, {
 // Read template from file, render via plates and send response
 function gettemplate (req, res, template, redisdata) {
   fs.readFile('templates/' + template + '.html', "utf8", function (err, data) {
-    if(err) throw err;
+    if(err) throw error;
     var content = { "content": redisdata}
       , output = plates.bind(data, content); 
     res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -32,7 +37,7 @@ function gettemplate (req, res, template, redisdata) {
 }
 
 // render '/' http request (root)
-function showIndex() {
+function showIndex(err) {
   var req = this.req
     , res = this.res;
   redisClient.get("root",
@@ -72,7 +77,7 @@ function postUpdate() {
     });
 }
 
-// Delete page
+// Delete page from redis
 function deletePage(pagename) {
   redisClient.del(pagename,
     function(err, reply) {
@@ -80,7 +85,9 @@ function deletePage(pagename) {
     });
 }
 
-function get404() {
+// Show consistent 404 page
+function show404(err) {
+    if (err) {console.log(err)};
     this.res.writeHead(404, { 'Content-Type': 'text/text' });
     this.res.end("This is not the page you are looking for");
     console.log("This is not the page you are looking for");
@@ -99,7 +106,7 @@ var routes = {
     '/:pagename' : {
       get: deletePage
     },
-    get: get404
+    get: show404
   },
   '/update' : {
     get: function () {
