@@ -25,7 +25,7 @@ app.use(flatiron.plugins.static, {
 });
 
 // Read template from file, render via plates and send response
-function gettemplate (req, res, template, redisdata) {
+function gettemplate (err, req, res, template, redisdata) {
   fs.readFile('templates/' + template + '.html', "utf8", function (err, data) {
     if(err) throw err;
     var content = { "content": redisdata}
@@ -42,7 +42,7 @@ function showIndex(err) {
   redisClient.get("root",
     function(err, redisdata) {
       if(err) throw err;
-      gettemplate(req, res, "base", redisdata);
+      gettemplate(err, req, res, "base", redisdata);
       console.log(redisdata);
     });
 }
@@ -54,8 +54,13 @@ function showPage(pagename) {
   redisClient.get(pagename,
     function(err, redisdata) {
       if(err) throw err;
-      gettemplate(req, res, "base", redisdata);
-      console.log(redisdata);
+      if(redisdata===null) {
+        show404(err, req, res);
+             }
+      else {
+        console.log("redisdata=" + redisdata)
+        gettemplate(err, req, res, "base", redisdata);
+      }
     });
 }
 
@@ -63,8 +68,21 @@ function showPage(pagename) {
 function showCreate() {
   var req = this.req
     , res = this.res;
-  gettemplate(req, res, "create");
+  gettemplate(err, req, res, "create");
 }
+
+// Show a list of all available pages
+function showUpdate(err) {
+  var req = this.req
+    , res = this.res;
+  redisClient.zrange("allpages", 0 ,-1 ,
+    function(err, redisdata) {
+      if(err) throw err;
+      gettemplate(err, req, res, "base", redisdata);
+      console.log(redisdata);
+    });
+}
+
 
 // Send formdata to redis
 function postUpdate() {
@@ -85,12 +103,22 @@ function deletePage(pagename) {
 }
 
 // Show consistent 404 page
-function show404(err) {
-    if (err) {console.log(err);
-    this.res.writeHead(404, { 'Content-Type': 'text/text' });
-    this.res.end("This is not the page you are looking for");
+function show404(err, req, res) {
+    if (err) {console.log(err);}
+
+    //Check whether show404 was called directly via director or another function
+    //and adjust req/res 
+    if (res) {
+      var res = res
+        , req = req;
+    }
+    else {
+      var res = this.res
+        , req = this.req 
+    }
+    res.writeHead(404, { 'Content-Type': 'text/text' });
+    res.end("This is not the page you are looking for");
     console.log("This is not the page you are looking for");
-  }
 }
 
 // Define routing table
@@ -108,9 +136,7 @@ var routes = {
     get: show404
   },
   '/update' : {
-    get: function () {
-      console.log("show all pages");
-    },
+    get: showUpdate,
     post: postUpdate
   },
   '/:pagename' : {
