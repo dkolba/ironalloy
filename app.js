@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 var http = require("http")
   , fs = require("fs")
@@ -8,8 +8,7 @@ var http = require("http")
   , plates = require("plates")
   , redis = require("redis")
   , redisClient = redis.createClient(process.env.redisport, process.env.host)
-  , app = flatiron.app
-  // , st = require(st);
+  , app = flatiron.app;
 
 // Connect to redis db
 redisClient.auth(process.env.redissecret);
@@ -28,9 +27,9 @@ app.use(flatiron.plugins.static, {
 // Read template from file, render via plates and send response
 function gettemplate (req, res, template, redisdata) {
   fs.readFile('templates/' + template + '.html', "utf8", function (err, data) {
-    if(err) throw error;
+    if(err) throw err;
     var content = { "content": redisdata}
-      , output = plates.bind(data, content); 
+      , output = plates.bind(data, content);
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end(output);
   });
@@ -73,7 +72,7 @@ function postUpdate() {
     , formdata = req.body;
   redisClient.set(formdata.pagename, formdata.pagecontent,
     function(err, reply) {
-      console.log(reply)
+      console.log(reply);
     });
 }
 
@@ -81,18 +80,18 @@ function postUpdate() {
 function deletePage(pagename) {
   redisClient.del(pagename,
     function(err, reply) {
-      console.log(reply)
+      console.log(reply);
     });
 }
 
 // Show consistent 404 page
 function show404(err) {
-    if (err) {console.log(err)};
+    if (err) {console.log(err);
     this.res.writeHead(404, { 'Content-Type': 'text/text' });
     this.res.end("This is not the page you are looking for");
     console.log("This is not the page you are looking for");
-  };
-
+  }
+}
 
 // Define routing table
 var routes = {
@@ -110,7 +109,7 @@ var routes = {
   },
   '/update' : {
     get: function () {
-      console.log("show all pages")
+      console.log("show all pages");
     },
     post: postUpdate
   },
