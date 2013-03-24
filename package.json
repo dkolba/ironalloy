@@ -28,6 +28,10 @@
     "redis": "0.8.2",
     "st": "0.1.2"
   },
+  "devDependencies": {
+    "mocha": "1.3.0",
+    "chai": "1.1.1"
+  },
   "analyze": true,
   "engines": {
     "node": ">=0.8.15"
