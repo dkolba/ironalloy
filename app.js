@@ -65,7 +65,7 @@ function showPage(pagename) {
 }
 
 // Show create form
-function showCreate() {
+function showCreate(err) {
   var req = this.req
     , res = this.res;
   gettemplate(err, req, res, "create");
