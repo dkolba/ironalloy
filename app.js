@@ -35,6 +35,19 @@ function gettemplate (err, req, res, template, redisdata) {
   });
 }
 
+// Read template from file, render via plates and send response
+function gettemplate2 (err, req, res, template, pagename, redisdata) {
+  fs.readFile('templates/' + template + '.html', "utf8", function (err, data) {
+    if(err) throw err;
+    var content = { "pagename": pagename,
+                    "pagecontent": redisdata}
+      , output = plates.bind(data, content);
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(output);
+  });
+}
+
+
 // render '/' http request (root)
 function showIndex(err) {
   var req = this.req
@@ -71,6 +84,25 @@ function showCreate(err) {
   gettemplate(err, req, res, "create");
 }
 
+// Show create form with old data
+function updateCreate(pagename) {
+  var req = this.req
+    , res = this.res;
+  console.log(pagename);
+  redisClient.get(pagename,
+    function(err, redisdata) {
+      if(err) throw err;
+      if(redisdata===null) {
+        gettemplate(err, req, res, "create");
+             }
+      else {
+        console.log("redisdata=" + redisdata)
+        gettemplate2(err, req, res, "create", pagename, redisdata);
+      }
+    });
+
+}
+
 // Show a list of all available pages
 function showUpdate(err) {
   var req = this.req
@@ -92,6 +124,10 @@ function postUpdate() {
     function(err, reply) {
       console.log(reply);
     });
+  redisClient.zadd(["allpages", 0, formdata.pagename],
+    function(err, reply) {
+      console.log(reply);
+    });
 }
 
 // Delete page from redis
@@ -100,6 +136,11 @@ function deletePage(pagename) {
     function(err, reply) {
       console.log(reply);
     });
+  redisClient.zrem(["allpages", pagename],
+    function(err, reply) {
+      console.log(reply);
+    });
+
 }
 
 // Show consistent 404 page
@@ -136,6 +177,9 @@ var routes = {
     get: show404
   },
   '/update' : {
+    '/:pagename': {
+      get: updateCreate
+    },
     get: showUpdate,
     post: postUpdate
   },
