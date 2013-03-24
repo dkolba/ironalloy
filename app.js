@@ -25,7 +25,7 @@ app.use(flatiron.plugins.static, {
 });
 
 // Read template from file, render via plates and send response
-function gettemplate (err, req, res, template, redisdata) {
+function gettemplate (req, res, template, redisdata) {
   fs.readFile('templates/' + template + '.html', "utf8", function (err, data) {
     if(err) throw err;
     var content = { "content": redisdata}
@@ -36,7 +36,7 @@ function gettemplate (err, req, res, template, redisdata) {
 }
 
 // Read template from file, render via plates and send response
-function gettemplate2 (err, req, res, template, pagename, redisdata) {
+function gettemplate2 (req, res, template, pagename, redisdata) {
   fs.readFile('templates/' + template + '.html', "utf8", function (err, data) {
     if(err) throw err;
     var content = { "pagename": pagename,
@@ -49,13 +49,13 @@ function gettemplate2 (err, req, res, template, pagename, redisdata) {
 
 
 // render '/' http request (root)
-function showIndex(err) {
+function showIndex() {
   var req = this.req
     , res = this.res;
   redisClient.get("root",
     function(err, redisdata) {
       if(err) throw err;
-      gettemplate(err, req, res, "base", redisdata);
+      gettemplate(req, res, "base", redisdata);
       console.log(redisdata);
     });
 }
@@ -72,16 +72,16 @@ function showPage(pagename) {
              }
       else {
         console.log("redisdata=" + redisdata)
-        gettemplate(err, req, res, "base", redisdata);
+        gettemplate(req, res, "base", redisdata);
       }
     });
 }
 
 // Show create form
-function showCreate(err) {
+function showCreate() {
   var req = this.req
     , res = this.res;
-  gettemplate(err, req, res, "create");
+  gettemplate(req, res, "create");
 }
 
 // Show create form with old data
@@ -93,24 +93,24 @@ function updateCreate(pagename) {
     function(err, redisdata) {
       if(err) throw err;
       if(redisdata===null) {
-        gettemplate(err, req, res, "create");
+        gettemplate(req, res, "create");
              }
       else {
         console.log("redisdata=" + redisdata)
-        gettemplate2(err, req, res, "create", pagename, redisdata);
+        gettemplate2(req, res, "create", pagename, redisdata);
       }
     });
 
 }
 
 // Show a list of all available pages
-function showUpdate(err) {
+function showUpdate() {
   var req = this.req
     , res = this.res;
   redisClient.zrange("allpages", 0 ,-1 ,
     function(err, redisdata) {
       if(err) throw err;
-      gettemplate(err, req, res, "base", redisdata);
+      gettemplate(req, res, "base", redisdata);
       console.log(redisdata);
     });
 }
@@ -145,8 +145,6 @@ function deletePage(pagename) {
 
 // Show consistent 404 page
 function show404(err, req, res) {
-    if (err) {console.log(err);}
-
     //Check whether show404 was called directly via director or another function
     //and adjust req/res 
     if (res) {
