@@ -25,18 +25,7 @@ app.use(flatiron.plugins.static, {
 });
 
 // Read template from file, render via plates and send response
-function gettemplate (req, res, template, redisdata) {
-  fs.readFile('templates/' + template + '.html', "utf8", function (err, data) {
-    if(err) throw err;
-    var content = { "content": redisdata}
-      , output = plates.bind(data, content);
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(output);
-  });
-}
-
-// Read template from file, render via plates and send response
-function gettemplate2 (req, res, template, pagename, redisdata) {
+function gettemplate (req, res, template, pagename, redisdata) {
   fs.readFile('templates/' + template + '.html', "utf8", function (err, data) {
     if(err) throw err;
     var content = { "pagename": pagename,
@@ -55,7 +44,7 @@ function showIndex() {
   redisClient.get("root",
     function(err, redisdata) {
       if(err) throw err;
-      gettemplate(req, res, "base", redisdata);
+      gettemplate(req, res, "base", null, redisdata);
       console.log(redisdata);
     });
 }
@@ -72,7 +61,7 @@ function showPage(pagename) {
              }
       else {
         console.log("redisdata=" + redisdata)
-        gettemplate(req, res, "base", redisdata);
+        gettemplate(req, res, "base", null, redisdata);
       }
     });
 }
@@ -97,7 +86,7 @@ function updateCreate(pagename) {
              }
       else {
         console.log("redisdata=" + redisdata)
-        gettemplate2(req, res, "create", pagename, redisdata);
+        gettemplate(req, res, "create", pagename, redisdata);
       }
     });
 
@@ -110,7 +99,7 @@ function showUpdate() {
   redisClient.zrange("allpages", 0 ,-1 ,
     function(err, redisdata) {
       if(err) throw err;
-      gettemplate(req, res, "base", redisdata);
+      gettemplate(req, res, "base", null, redisdata);
       console.log(redisdata);
     });
 }
@@ -119,26 +108,31 @@ function showUpdate() {
 // Send formdata to redis
 function postUpdate() {
   var req = this.req
-    , formdata = req.body;
+    , formdata = req.body
+    , res = this.res;
   redisClient.set(formdata.pagename, formdata.pagecontent,
-    function(err, reply) {
-      console.log(reply);
+    function(err, redisdata) {
+      console.log(redisdata);
+      gettemplate(req, res, "base", null, redisdata);
     });
   redisClient.zadd(["allpages", 0, formdata.pagename],
-    function(err, reply) {
-      console.log(reply);
+    function(err, redisdata) {
+      console.log(redisdata);
     });
 }
 
 // Delete page from redis
 function deletePage(pagename) {
+  var req = this.req
+    , res = this.res;
   redisClient.del(pagename,
-    function(err, reply) {
-      console.log(reply);
+    function(err, redisdata) {
+      console.log(redisdata);
+      gettemplate(req, res, "base", pagename, redisdata);
     });
   redisClient.zrem(["allpages", pagename],
-    function(err, reply) {
-      console.log(reply);
+    function(err, redisdata) {
+      console.log(redisdata);
     });
 
 }
