@@ -8,7 +8,17 @@ var http = require("http")
   , plates = require("plates")
   , redis = require("redis")
   , redisClient = redis.createClient(process.env.redisport, process.env.host)
-  , app = flatiron.app;
+  , app = flatiron.app
+  , winston = require('winston');
+
+var logger = new (winston.Logger)({
+      transports: [
+        new (winston.transports.Console)(),
+        new (winston.transports.File)({ filename: 'somefile.log' })
+      ]
+    });
+
+  winston.log('ahoi')
 
 // Connect to redis db
 redisClient.auth(process.env.redissecret);
@@ -45,7 +55,7 @@ function showIndex() {
     function(err, redisdata) {
       if(err) throw err;
       gettemplate(req, res, "base", null, redisdata);
-      console.log(redisdata);
+      logger.log('info', redisdata);
     });
 }
 
