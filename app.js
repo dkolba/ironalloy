@@ -9,7 +9,10 @@ var http = require("http")
   , redis = require("redis")
   , redisClient = redis.createClient(process.env.redisport, process.env.host)
   , app = flatiron.app
-  , winston = require('winston');
+  , winston = require('winston')
+  , redsess = require('redsess')
+  , cookies = require('cookies')
+  , keygrip = require('keygrip');
 
 var logger = new (winston.Logger)({
       transports: [
@@ -17,8 +20,6 @@ var logger = new (winston.Logger)({
         new (winston.transports.File)({ filename: 'somefile.log' })
       ]
     });
-
-  winston.log('ahoi')
 
 // Connect to redis db
 redisClient.auth(process.env.redissecret);
@@ -57,6 +58,15 @@ function showIndex() {
       gettemplate(req, res, "base", null, redisdata);
       logger.log('info', redisdata);
     });
+var session = new redsess(req, res, {
+  cookieName: 's',
+  expire: 400, // default = 2 weeks
+  client: redisClient, // defaults to RedSess.client
+  keys: [ "this is a string key" ] // will be made into a keygrip obj
+  });
+req.session = session;
+res.session = session;
+req.session.set('ironalloy', "test3");
 }
 
 // Fetch page via pagename from redis and render template
