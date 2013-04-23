@@ -58,15 +58,15 @@ function showIndex() {
       gettemplate(req, res, "base", null, redisdata);
       logger.log('info', redisdata);
     });
-var session = new redsess(req, res, {
-  cookieName: 's',
-  expire: 400, // default = 2 weeks
-  client: redisClient, // defaults to RedSess.client
-  keys: [ "this is a string key" ] // will be made into a keygrip obj
+  var session = new redsess(req, res, {
+    cookieName: 's',
+    expire: 400, // default = 2 weeks
+    client: redisClient, // defaults to RedSess.client
+    keys: [ "this is a string key" ] // will be made into a keygrip obj
   });
-req.session = session;
-res.session = session;
-req.session.set('ironalloy', "test3");
+  req.session = session;
+  res.session = session;
+  req.session.set('ironalloy', "test3");
 }
 
 // Fetch page via pagename from redis and render template
@@ -86,13 +86,78 @@ function showPage(pagename) {
     });
 }
 
+// Fetch page via pagename from redis and render template
+function showAdmin() {
+  var req = this.req
+    , res = this.res;
+
+  var session = new redsess(req, res, {
+  cookieName: 's',
+  expire: 400, // default = 2 weeks
+  client: redisClient, // defaults to RedSess.client
+  keys: [ "this is a string key" ] // will be made into a keygrip obj
+  });
+  req.session = session;
+  res.session = session;
+
+  req.session.get('auth', function (er, auth) {
+    if (!auth) {
+      show404(null, req, res);
+    }
+    else {
+      redisClient.get("admin",
+        function(err, redisdata) {
+          if(err) throw err;
+          if(redisdata===null) {
+            show404(err, req, res);
+          }
+          else {
+            console.log("redisdata=" + redisdata);
+            gettemplate(req, res, "base", null, redisdata);
+          }
+        });
+    }
+  });
+}
+
+
+function showLogin() {
+  var req = this.req
+    , res = this.res;
+  gettemplate(req, res, "login");
+}
+
+function postLogin () {
+  var req = this.req
+    , formdata = req.body
+    , res = this.res;
+
+  var session = new redsess(req, res, {
+    cookieName: 's',
+    expire: 400, // default = 2 weeks
+    client: redisClient, // defaults to RedSess.client
+    keys: [ "this is a string key" ] // will be made into a keygrip obj
+  });
+  req.session = session;
+  res.session = session;
+
+  redisClient.get(formdata.username,
+    function(err, password) {
+      if (password && formdata.password === password){
+        console.log(password);
+        req.session.set('auth', formdata.username)
+      }
+      gettemplate(req, res, "base", null, password);
+    });
+}
+
 // Show create form
 function showCreate() {
   var req = this.req
     , res = this.res;
   gettemplate(req, res, "create");
 }
-
+ 
 // Show create form with old data
 function updateCreate(pagename) {
   var req = this.req
@@ -179,6 +244,9 @@ var routes = {
   '/' : {
     get: showIndex
   },
+  '/admin' : {
+    get: showAdmin
+  },
   '/create' : {
     get: showCreate
   },
@@ -195,6 +263,11 @@ var routes = {
     get: showUpdate,
     post: postUpdate
   },
+  '/login' : {
+    get: showLogin,
+    post: postLogin
+  },
+
   '/:pagename' : {
     get: showPage
   }
