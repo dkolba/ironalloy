@@ -26,8 +26,33 @@ redisClient.auth(process.env.redissecret);
 
 // Use flatiron http server combo (director/union)
 app.use(flatiron.plugins.http, {
-  onError:show404
+  onError:show404,
+  before: [redSession]
 });
+
+// Test whether the incoming request has a valid session and set
+// req.session.legit to true/false
+function redSession (req, res) {
+  var session = new redsess(req, res, {
+  cookieName: 's',
+  expire: 400, // default = 2 weeks
+  client: redisClient, // defaults to RedSess.client
+  keys: [ "this is a string key" ] // will be made into a keygrip obj
+  });
+  req.session = session;
+  res.session = session;
+
+  req.session.get('auth', function (er, auth) {
+    if (!auth) {
+      req.session.legit = false;
+      res.emit('next');
+    }
+    else {
+      req.session.legit = true;
+      res.emit('next');
+    }
+  });
+}
 
 // Use st as file server
 app.use(flatiron.plugins.static, {
@@ -47,7 +72,6 @@ function gettemplate (req, res, template, pagename, redisdata) {
   });
 }
 
-
 // render '/' http request (root)
 function showIndex() {
   var req = this.req
@@ -58,15 +82,6 @@ function showIndex() {
       gettemplate(req, res, "base", null, redisdata);
       logger.log('info', redisdata);
     });
-  var session = new redsess(req, res, {
-    cookieName: 's',
-    expire: 400, // default = 2 weeks
-    client: redisClient, // defaults to RedSess.client
-    keys: [ "this is a string key" ] // will be made into a keygrip obj
-  });
-  req.session = session;
-  res.session = session;
-  req.session.set('ironalloy', "test3");
 }
 
 // Fetch page via pagename from redis and render template
@@ -80,7 +95,7 @@ function showPage(pagename) {
         show404(err, req, res);
              }
       else {
-        console.log("redisdata=" + redisdata)
+        console.log("redisdata=" + redisdata);
         gettemplate(req, res, "base", null, redisdata);
       }
     });
@@ -91,35 +106,24 @@ function showAdmin() {
   var req = this.req
     , res = this.res;
 
-  var session = new redsess(req, res, {
-  cookieName: 's',
-  expire: 400, // default = 2 weeks
-  client: redisClient, // defaults to RedSess.client
-  keys: [ "this is a string key" ] // will be made into a keygrip obj
-  });
-  req.session = session;
-  res.session = session;
-
-  req.session.get('auth', function (er, auth) {
-    if (!auth) {
-      show404(null, req, res);
-    }
-    else {
-      redisClient.get("admin",
-        function(err, redisdata) {
-          if(err) throw err;
-          if(redisdata===null) {
-            show404(err, req, res);
-          }
-          else {
-            console.log("redisdata=" + redisdata);
-            gettemplate(req, res, "base", null, redisdata);
-          }
-        });
-    }
-  });
+  if (!req.session.legit) {
+    res.redirect("/login", 301)
+    // show404(null, req, res);
+  }
+  else {
+    redisClient.get("admin",
+      function(err, redisdata) {
+        if(err) throw err;
+        if(redisdata===null) {
+          show404(err, req, res);
+        }
+        else {
+          console.log("redisdata=" + redisdata);
+          gettemplate(req, res, "base", null, redisdata);
+        }
+      });
+  }
 }
-
 
 function showLogin() {
   var req = this.req
@@ -127,25 +131,17 @@ function showLogin() {
   gettemplate(req, res, "login");
 }
 
+// Send formdata to redis and test whether username and password are valid
 function postLogin () {
   var req = this.req
     , formdata = req.body
     , res = this.res;
 
-  var session = new redsess(req, res, {
-    cookieName: 's',
-    expire: 400, // default = 2 weeks
-    client: redisClient, // defaults to RedSess.client
-    keys: [ "this is a string key" ] // will be made into a keygrip obj
-  });
-  req.session = session;
-  res.session = session;
-
   redisClient.get(formdata.username,
     function(err, password) {
       if (password && formdata.password === password){
         console.log(password);
-        req.session.set('auth', formdata.username)
+        req.session.set('auth', formdata.username);
       }
       gettemplate(req, res, "base", null, password);
     });
@@ -157,7 +153,7 @@ function showCreate() {
     , res = this.res;
   gettemplate(req, res, "create");
 }
- 
+
 // Show create form with old data
 function updateCreate(pagename) {
   var req = this.req
@@ -170,11 +166,10 @@ function updateCreate(pagename) {
         gettemplate(req, res, "create");
              }
       else {
-        console.log("redisdata=" + redisdata)
+        console.log("redisdata=" + redisdata);
         gettemplate(req, res, "create", pagename, redisdata);
       }
     });
-
 }
 
 // Show a list of all available pages
@@ -188,7 +183,6 @@ function showUpdate() {
       console.log(redisdata);
     });
 }
-
 
 // Send formdata to redis
 function postUpdate() {
