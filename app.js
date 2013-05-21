@@ -12,7 +12,8 @@ var http = require("http")
   , winston = require('winston')
   , redsess = require('redsess')
   , cookies = require('cookies')
-  , keygrip = require('keygrip');
+  , keygrip = require('keygrip')
+  , routes = require("./routes");
 
 var logger = new (winston.Logger)({
       transports: [
@@ -107,7 +108,7 @@ function showAdmin() {
     , res = this.res;
 
   if (!req.session.legit) {
-    res.redirect("/login", 301)
+   res.redirect("/login", 301)
     // show404(null, req, res);
   }
   else {
@@ -234,40 +235,43 @@ function show404(err, req, res) {
 }
 
 // Define routing table
-var routes = {
-  '/' : {
-    get: showIndex
-  },
-  '/admin' : {
-    get: showAdmin
-  },
-  '/create' : {
-    get: showCreate
-  },
-  '/delete' : {
-    '/:pagename' : {
-      get: deletePage
-    },
-    get: show404
-  },
-  '/update' : {
-    '/:pagename': {
-      get: updateCreate
-    },
-    get: showUpdate,
-    post: postUpdate
-  },
-  '/login' : {
-    get: showLogin,
-    post: postLogin
-  },
-
-  '/:pagename' : {
-    get: showPage
-  }
-};
+// var routes = {
+//   '/' : {
+//     get: showIndex
+//   },
+//   '/admin' : {
+//     get: showAdmin
+//   },
+//   '/create' : {
+//     get: showCreate
+//   },
+//   '/delete' : {
+//     '/:pagename' : {
+//       get: deletePage
+//     },
+//     get: show404
+//   },
+//   '/update' : {
+//     '/:pagename': {
+//       get: updateCreate
+//     },
+//     get: showUpdate,
+//     post: postUpdate
+//   },
+//   '/login' : {
+//     get: showLogin,
+//     post: postLogin
+//   },
+// 
+//   '/:pagename' : {
+//     get: showPage
+//   }
+// };
 // Inject routing table
 app.router.mount(routes);
-
 app.start(8080);
 console.log('union with director running on 8080');
+
+module.exports.redisClient = redisClient;
+module.exports.gettemplate = gettemplate;
+module.exports.logger = logger;
