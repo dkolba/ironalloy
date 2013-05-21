@@ -1,35 +1,36 @@
-var ap = require("./controller");
+var controller = require("./controller");
+
 // Define routing table
 var routes = {
   '/' : {
-    get: ap.showIndex
+    get: controller.showIndex
   },
   '/admin' : {
-    get: ap.showAdmin
+    get: controller.showAdmin
   },
   '/create' : {
-    get: ap.showCreate
+    get: controller.showCreate
   },
   '/delete' : {
     '/:pagename' : {
-      get: ap.deletePage
+      get: controller.deletePage
     },
-    get: ap.show404
+    get: controller.show404
   },
   '/update' : {
     '/:pagename': {
-      get: ap.updateCreate
+      get: controller.updateCreate
     },
-    get: ap.showUpdate,
-    post: ap.postUpdate
+    get: controller.showUpdate,
+    post: controller.postUpdate
   },
   '/login' : {
-    get: ap.showLogin,
-    post: ap.postLogin
+    get: controller.showLogin,
+    post: controller.postLogin
   },
 
   '/:pagename' : {
-    get: ap.showPage
+    get: controller.showPage
   }
 };
 module.exports.routes = routes;

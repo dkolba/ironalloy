@@ -65,9 +65,10 @@ function postLogin () {
     , formdata = req.body
     , res = this.res;
 
-  app.redisClient.get(formdata.username,
+  app.redisClient.get("root",
     function(err, password) {
-      if (password && formdata.password === password){
+      if (password && formdata.password === password &&
+      formdata.username === "root"){
         console.log(password);
         req.session.set('auth', formdata.username);
       }
@@ -163,12 +164,12 @@ function show404(err, req, res) {
 
 module.exports.showIndex = showIndex;
 module.exports.showAdmin = showAdmin;
-module.exports.showCreate= showCreate;
-module.exports.deletePage= deletePage;
-module.exports.show404= show404;
-module.exports.updateCreate= updateCreate;
-module.exports.showUpdate= showUpdate;
-module.exports.postUpdate= postUpdate;
-module.exports.showLogin= showLogin;
-module.exports.postLogin= postLogin;
-module.exports.showPage= showPage;
+module.exports.showCreate = showCreate;
+module.exports.deletePage = deletePage;
+module.exports.show404 = show404;
+module.exports.updateCreate = updateCreate;
+module.exports.showUpdate = showUpdate;
+module.exports.postUpdate = postUpdate;
+module.exports.showLogin = showLogin;
+module.exports.postLogin = postLogin;
+module.exports.showPage = showPage;
