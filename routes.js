@@ -6,29 +6,31 @@ var routes = {
     get: controller.showIndex
   },
   '/admin' : {
-    get: controller.showAdmin
-  },
-  '/create' : {
-    get: controller.showCreate
-  },
-  '/delete' : {
-    '/:pagename' : {
-      get: controller.deletePage
+    get: controller.showAdmin,
+    '/create' : {
+      get: controller.showCreate
     },
-    get: controller.show404
-  },
-  '/update' : {
-    '/:pagename': {
-      get: controller.updateCreate
+    '/delete' : {
+      get: controller.show404,
+      '/:pagename' : {
+        get: controller.deletePage
+      }
     },
-    get: controller.showUpdate,
-    post: controller.postUpdate
+    '/update' : {
+      get: controller.showUpdate,
+      post: controller.postUpdate,
+      '/:pagename': {
+        get: controller.updateCreate
+      }
+    }
   },
   '/login' : {
     get: controller.showLogin,
     post: controller.postLogin
   },
-
+  '/logout' : {
+    get: controller.logout
+  },
   '/:pagename' : {
     get: controller.showPage
   }

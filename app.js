@@ -44,7 +44,8 @@ function redSession (req, res) {
   req.session = session;
   res.session = session;
 
-  req.session.get('auth', function (er, auth) {
+  req.session.get('auth', function (err, auth) {
+    if(err) throw err; // This should catch errors in the future
     if (!auth) {
       req.session.legit = false;
       res.emit('next');
