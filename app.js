@@ -1,11 +1,9 @@
 "use strict";
 
 var http = require("http")
-  , fs = require("fs")
   , flatiron = require("flatiron")
   , director = require("director")
   , union = require("union")
-  , plates = require("plates")
   , redis = require("redis")
   , redisClient = redis.createClient(process.env.redisport, process.env.host)
   , app = flatiron.app
@@ -63,23 +61,10 @@ app.use(flatiron.plugins.static, {
   url : 'public/'
 });
 
-// Read template from file, render via plates and send response
-function gettemplate (req, res, template, pagename, redisdata) {
-  fs.readFile('templates/' + template + '.html', "utf8", function (err, data) {
-    if(err) throw err;
-    var content = { "pagename": pagename,
-                    "pagecontent": redisdata}
-      , output = plates.bind(data, content);
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(output);
-  });
-}
-
 // Inject routing table
 app.router.mount(routes);
 app.start(8080);
 console.log('union with director running on 8080');
 
 module.exports.redisClient = redisClient;
-module.exports.gettemplate = gettemplate;
 module.exports.logger = logger;

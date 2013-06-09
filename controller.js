@@ -1,4 +1,5 @@
-var app = require("./app");
+var app = require("./app")
+  , views = require("./views");
 
 // render '/' http request (root)
 function showIndex() {
@@ -7,7 +8,7 @@ function showIndex() {
   app.redisClient.get("index",
     function(err, redisdata) {
       if(err) throw err;
-      app.gettemplate(req, res, "base", null, redisdata);
+      views.gettemplate(req, res, "base", null, redisdata);
       app.logger.log('info', redisdata);
     });
 }
@@ -24,7 +25,7 @@ function showPage(pagename) {
              }
       else {
         console.log("redisdata=" + redisdata);
-        app.gettemplate(req, res, "base", null, redisdata);
+        views.gettemplate(req, res, "base", null, redisdata);
       }
     });
 }
@@ -56,7 +57,7 @@ function showAdmin() {
         }
         else {
           console.log("redisdata=" + redisdata);
-          app.gettemplate(req, res, "base", null, redisdata);
+          views.gettemplate(req, res, "base", null, redisdata);
         }
       });
   }
@@ -65,7 +66,7 @@ function showAdmin() {
 function showLogin() {
   var req = this.req
     , res = this.res;
-  app.gettemplate(req, res, "login");
+  views.gettemplate(req, res, "login");
 }
 
 // Send formdata to redis and test whether username and password are valid
@@ -81,7 +82,7 @@ function postLogin () {
         console.log(password);
         req.session.set('auth', formdata.username);
       }
-      app.gettemplate(req, res, "base", null, password);
+      views.gettemplate(req, res, "base", null, password);
     });
 }
 
@@ -93,7 +94,7 @@ function showCreate() {
    res.redirect("/login", 301);
   }
   else {
-    app.gettemplate(req, res, "create");
+    views.gettemplate(req, res, "create");
   }
 }
 
@@ -110,11 +111,11 @@ function updateCreate(pagename) {
       function(err, redisdata) {
         if(err) throw err;
         if(redisdata===null) {
-          app.gettemplate(req, res, "create");
+          views.gettemplate(req, res, "create");
                }
         else {
           console.log("redisdata=" + redisdata);
-          app.gettemplate(req, res, "create", pagename, redisdata);
+          views.gettemplate(req, res, "create", pagename, redisdata);
         }
       });
   }
@@ -131,7 +132,7 @@ function showUpdate() {
     app.redisClient.zrange("allpages", 0 ,-1 ,
       function(err, redisdata) {
         if(err) throw err;
-        app.gettemplate(req, res, "base", null, redisdata);
+        views.gettemplate(req, res, "base", null, redisdata);
         console.log(redisdata);
       });
   }
@@ -149,7 +150,7 @@ function postUpdate() {
     app.redisClient.set(formdata.pagename, formdata.pagecontent,
       function(err, redisdata) {
         console.log(redisdata);
-        app.gettemplate(req, res, "base", null, redisdata);
+        views.gettemplate(req, res, "base", null, redisdata);
       });
     app.redisClient.zadd(["allpages", 0, formdata.pagename],
       function(err, redisdata) {
@@ -169,7 +170,7 @@ function deletePage(pagename) {
     app.redisClient.del("page:" + pagename,
       function(err, redisdata) {
         console.log(redisdata);
-        app.gettemplate(req, res, "base", pagename, redisdata);
+        views.gettemplate(req, res, "base", pagename, redisdata);
       });
     app.redisClient.zrem(["allpages", pagename],
       function(err, redisdata) {
