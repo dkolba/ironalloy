@@ -147,7 +147,7 @@ function postUpdate() {
    res.redirect("/login", 301);
   }
   else {
-    app.redisClient.set(formdata.pagename, formdata.pagecontent,
+    app.redisClient.set("page:" + formdata.pagename, formdata.pagecontent,
       function(err, redisdata) {
         console.log(redisdata);
         views.gettemplate(req, res, "base", null, redisdata);
