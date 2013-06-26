@@ -1,5 +1,7 @@
+"use strict";
 var app = require("./app")
-  , views = require("./views");
+  , views = require("./views")
+  , models = require("./models");
 
 // render '/' http request (root)
 function showIndex() {
@@ -16,18 +18,16 @@ function showIndex() {
 // Fetch page via pagename from redis and render template
 function showPage(pagename) {
   var req = this.req
-    , res = this.res;
-  app.redisClient.get("page:" + pagename,
-    function(err, redisdata) {
-      if(err) throw err;
-      if(redisdata===null) {
-        show404(err, req, res);
-             }
-      else {
-        console.log("redisdata=" + redisdata);
-        views.gettemplate(req, res, "base", null, redisdata);
-      }
-    });
+    , res = this.res
+    , blueprint = [{ partial: 'menu',
+                     attribute: 'id',
+                     destination: 'pagecontent'
+                   },
+                   { partial: 'sidebar',
+                     attribute: 'id',
+                     destination: 'menu'
+                   }]
+  models.getRedisData(req, res, blueprint, pagename);
 }
 
 
