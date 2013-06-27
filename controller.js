@@ -43,30 +43,28 @@ function logout (req, res) {
 // Fetch page via pagename from redis and render template
 function showAdmin() {
   var req = this.req
-    , res = this.res;
+    , res = this.res
+    , blueprint = [{ partial: 'admin',
+                     attribute: 'id',
+                     destination: 'pagecontent'
+                   }];
 
   if (!req.session.legit) {
    res.redirect("/login", 301);
   }
   else {
-    app.redisClient.get("page:admin",
-      function(err, redisdata) {
-        if(err) throw err;
-        if(redisdata===null) {
-          show404(err, req, res);
-        }
-        else {
-          console.log("redisdata=" + redisdata);
-          views.gettemplate(req, res, "base", null, redisdata);
-        }
-      });
+    views.renderView(req, res, blueprint);
   }
 }
 
 function showLogin() {
   var req = this.req
-    , res = this.res;
-  views.gettemplate(req, res, "login");
+    , res = this.res
+    , blueprint = [{ partial: 'adminlogin',
+                     attribute: 'id',
+                     destination: 'pagecontent'
+                   }];
+  views.renderView(req, res, blueprint);
 }
 
 // Send formdata to redis and test whether username and password are valid
@@ -91,20 +89,27 @@ function postLogin () {
 // Show create form
 function showCreate() {
   var req = this.req
-    , res = this.res;
+    , res = this.res
+    , blueprint = [{ partial: 'admincreate',
+                     attribute: 'id',
+                     destination: 'pagecontent'
+                   }];
   if (!req.session.legit) {
    res.redirect("/login", 301);
   }
   else {
-    views.gettemplate(req, res, "create");
+    views.renderView(req, res, blueprint);
   }
 }
 
 // Show create form with old data
 function updateCreate(pagename) {
   var req = this.req
-    , res = this.res;
-  console.log(pagename);
+    , res = this.res
+    , blueprint = [{ partial: 'admincreate',
+                     attribute: 'id',
+                     destination: 'pagecontent'
+                   }];
   if (!req.session.legit) {
    res.redirect("/login", 301);
   }
@@ -113,7 +118,7 @@ function updateCreate(pagename) {
       function(err, redisdata) {
         if(err) throw err;
         if(redisdata===null) {
-          views.gettemplate(req, res, "create");
+          views.renderView(req, res, blueprint);
                }
         else {
           console.log("redisdata=" + redisdata);

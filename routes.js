@@ -5,7 +5,7 @@ var routes = {
   '/' : {
     get: controller.showIndex
   },
-  '/admin' : {
+  '/admin/?' : {
     get: controller.showAdmin,
     '/create' : {
       get: controller.showCreate
@@ -31,7 +31,7 @@ var routes = {
   '/logout' : {
     get: controller.logout
   },
-  '/:pagename' : {
+  '/:pagename/?' : {
     get: controller.showPage
   }
 };
