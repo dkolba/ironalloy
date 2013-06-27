@@ -26,7 +26,7 @@ function showPage(pagename) {
                    { partial: 'sidebar',
                      attribute: 'id',
                      destination: 'menu'
-                   }]
+                   }];
   models.getRedisData(req, res, blueprint, pagename);
 }
 
@@ -79,10 +79,12 @@ function postLogin () {
     function(err, password) {
       if (password && formdata.password === password &&
       formdata.username === "root"){
-        console.log(password);
         req.session.set('auth', formdata.username);
+        res.redirect("/admin", 301);
       }
-      views.gettemplate(req, res, "base", null, password);
+      else {
+        res.redirect("/login", 301);
+      }
     });
 }
 
