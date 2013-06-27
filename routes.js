@@ -7,28 +7,28 @@ var routes = {
   },
   '/admin/?' : {
     get: controller.showAdmin,
-    '/create' : {
+    '/create/?' : {
       get: controller.showCreate
     },
-    '/delete' : {
+    '/delete/?' : {
       get: controller.show404,
       '/:pagename' : {
         get: controller.deletePage
       }
     },
-    '/update' : {
+    '/update/?' : {
       get: controller.showUpdate,
       post: controller.postUpdate,
-      '/:pagename': {
+      '/:pagename/?': {
         get: controller.updateCreate
       }
     }
   },
-  '/login' : {
+  '/login/?' : {
     get: controller.showLogin,
     post: controller.postLogin
   },
-  '/logout' : {
+  '/logout/?' : {
     get: controller.logout
   },
   '/:pagename/?' : {
