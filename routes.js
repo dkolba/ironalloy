@@ -12,7 +12,7 @@ var routes = {
     },
     '/delete/?' : {
       get: controller.show404,
-      '/:pagename' : {
+      '/:pagename/?' : {
         get: controller.deletePage
       }
     },
