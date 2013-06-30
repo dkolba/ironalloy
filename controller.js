@@ -122,7 +122,7 @@ function updateCreate(pagename) {
                }
         else {
           console.log("redisdata=" + redisdata);
-          views.gettemplate(req, res, "create", pagename, redisdata);
+          views.gettemplate(req, res, "admincreate", pagename, redisdata);
         }
       });
   }
