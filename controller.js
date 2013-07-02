@@ -204,6 +204,7 @@ function show404(err, req, res) {
                        destination: 'pagecontent'
                      }];
     console.log("This is not the page you are looking for");
+    res.statusCode = 404;
     views.renderView(req, res, blueprint);
 }
 

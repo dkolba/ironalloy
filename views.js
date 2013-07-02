@@ -40,6 +40,9 @@ function renderView (req, res, blueprint, redisdata) {
   }
   if (redisdata) {
     renderRedisData(req, res, ruffian, redisdata);
+  } else if (res.statusCode === 404) {
+    res.setHeader('Content-Type', 'text/html');
+    res.end(ruffian);
   } else {
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end(ruffian);
