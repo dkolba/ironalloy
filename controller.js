@@ -198,9 +198,13 @@ function show404(err, req, res) {
       var res = this.res
         , req = this.req 
     }
-    res.writeHead(404, { 'Content-Type': 'text/text' });
-    res.end("This is not the page you are looking for");
+
+    var blueprint = [{ partial: '404',
+                       attribute: 'id',
+                       destination: 'pagecontent'
+                     }];
     console.log("This is not the page you are looking for");
+    views.renderView(req, res, blueprint);
 }
 
 module.exports.deletePage = deletePage;
