@@ -6,30 +6,32 @@ var app = require("./app")
 // render '/' http request (root)
 function showIndex() {
   var req = this.req
-    , res = this.res;
-  app.redisClient.get("index",
-    function(err, redisdata) {
-      if(err) throw err;
-      views.gettemplate(req, res, "base", null, redisdata);
-      app.logger.log('info', redisdata);
-    });
+    , res = this.res
+    , blueprint = ["basis", { partial: 'menu',
+                              attribute: 'id',
+                              destination: 'pagecontent'
+                            },
+                            { partial: 'sidebar',
+                              attribute: 'id',
+                              destination: 'menu'
+                            }];
+  models.getRedisHash(req, res, blueprint, "index");
 }
 
 // Fetch page via pagename from redis and render template
 function showPage(pagename) {
   var req = this.req
     , res = this.res
-    , blueprint = [{ partial: 'menu',
-                     attribute: 'id',
-                     destination: 'pagecontent'
-                   },
-                   { partial: 'sidebar',
-                     attribute: 'id',
-                     destination: 'menu'
-                   }];
-  models.getRedisData(req, res, blueprint, pagename);
+    , blueprint = ["basis", { partial: 'menu',
+                              attribute: 'id',
+                              destination: 'pagecontent'
+                            },
+                            { partial: 'sidebar',
+                              attribute: 'id',
+                              destination: 'menu'
+                            }];
+  models.getRedisHash(req, res, blueprint, pagename);
 }
-
 
 function logout (req, res) {
   var req = this.req
@@ -44,11 +46,10 @@ function logout (req, res) {
 function showAdmin() {
   var req = this.req
     , res = this.res
-    , blueprint = [{ partial: 'admin',
-                     attribute: 'id',
-                     destination: 'pagecontent'
-                   }];
-
+    , blueprint = ["adminbasis", { partial: 'admin',
+                                   attribute: 'id',
+                                   destination: 'admincontent'
+                                 }];
   if (!req.session.legit) {
    res.redirect("/login", 301);
   }
@@ -60,10 +61,10 @@ function showAdmin() {
 function showLogin() {
   var req = this.req
     , res = this.res
-    , blueprint = [{ partial: 'adminlogin',
-                     attribute: 'id',
-                     destination: 'pagecontent'
-                   }];
+    , blueprint = ["adminbasis", { partial: 'adminlogin',
+                                   attribute: 'id',
+                                   destination: 'admincontent'
+                                 }];
   views.renderView(req, res, blueprint);
 }
 
@@ -90,10 +91,10 @@ function postLogin () {
 function showCreate() {
   var req = this.req
     , res = this.res
-    , blueprint = [{ partial: 'admincreate',
-                     attribute: 'id',
-                     destination: 'pagecontent'
-                   }];
+    , blueprint = ["adminbasis", { partial: 'admincreate',
+                                   attribute: 'id',
+                                   destination: 'admincontent'
+                                 }];
   if (!req.session.legit) {
    res.redirect("/login", 301);
   }
@@ -106,25 +107,15 @@ function showCreate() {
 function updateCreate(pagename) {
   var req = this.req
     , res = this.res
-    , blueprint = [{ partial: 'admincreate',
-                     attribute: 'id',
-                     destination: 'pagecontent'
-                   }];
+    , blueprint = ["adminbasis", { partial: 'admincreate',
+                                   attribute: 'id',
+                                   destination: 'admincontent'
+                                 }];
   if (!req.session.legit) {
    res.redirect("/login", 301);
   }
   else {
-    app.redisClient.get("page:" + pagename,
-      function(err, redisdata) {
-        if(err) throw err;
-        if(redisdata===null) {
-          views.renderView(req, res, blueprint);
-               }
-        else {
-          console.log("redisdata=" + redisdata);
-          views.gettemplate(req, res, "admincreate", pagename, redisdata);
-        }
-      });
+    models.getRedisHash(req, res, blueprint, pagename);
   }
 }
 
@@ -136,12 +127,8 @@ function showUpdate() {
    res.redirect("/login", 301);
   }
   else {
-    app.redisClient.zrange("allpages", 0 ,-1 ,
-      function(err, redisdata) {
-        if(err) throw err;
-        views.gettemplate(req, res, "base", null, redisdata);
-        console.log(redisdata);
-      });
+    var blueprint = ["adminbasis"];
+    models.getRedisSortedSet(req, res, blueprint);
   }
 }
 
@@ -154,10 +141,10 @@ function postUpdate() {
    res.redirect("/login", 301);
   }
   else {
-    app.redisClient.set("page:" + formdata.pagename, formdata.pagecontent,
-      function(err, redisdata) {
-        console.log(redisdata);
-        views.gettemplate(req, res, "base", null, redisdata);
+    app.redisClient.hmset("page:" + formdata.pagename,
+        {"pagetitle": formdata.pagetitle, "pagecontent": formdata.pagecontent},
+      function(err) {
+        res.redirect("/admin/update", 301);
       });
     app.redisClient.zadd(["allpages", 0, formdata.pagename],
       function(err, redisdata) {
@@ -174,10 +161,9 @@ function deletePage(pagename) {
    res.redirect("/login", 301);
   }
   else {
-    app.redisClient.del("page:" + pagename,
-      function(err, redisdata) {
-        console.log(redisdata);
-        views.gettemplate(req, res, "base", pagename, redisdata);
+    app.redisClient.hdel("page:" + pagename,
+      function(err) {
+        res.redirect("/admin/update", 301);
       });
     app.redisClient.zrem(["allpages", pagename],
       function(err, redisdata) {
@@ -199,11 +185,10 @@ function show404(err, req, res) {
         , req = this.req 
     }
 
-    var blueprint = [{ partial: '404',
+    var blueprint = ["basis", { partial: '404',
                        attribute: 'id',
                        destination: 'pagecontent'
                      }];
-    console.log("This is not the page you are looking for");
     res.statusCode = 404;
     views.renderView(req, res, blueprint);
 }

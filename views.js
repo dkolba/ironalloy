@@ -3,20 +3,7 @@
 var fs = require("fs")
   , plates = require("plates");
 
-// Read template from file, render via plates and send response
-function gettemplate (req, res, template, pagename, redisdata) {
-  fs.readFile('templates/' + template + '.html', "utf8", function (err, data) {
-    if(err) throw err;
-    var content = { "pagename": pagename,
-                    "pagecontent": redisdata}
-      , output = plates.bind(data, content);
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(output);
-  });
-}
-
-// - fs.read.basistemplate
-// - fs.read.htmlfragment
+// Read all partials from disk 
 var partials = {};
 var filenames = fs.readdirSync('templates/');
 for (var i = 0; i < filenames.length; i++) {
@@ -27,20 +14,23 @@ for (var i = 0; i < filenames.length; i++) {
 function preRenderView (ruffian, partial, attribute, destination) {
   var mapping = plates.Map();
   mapping.where(attribute).is(destination).append(partials[partial]);
-  // console.log(plates.bind(ruffian, null, mapping));
   return plates.bind(ruffian, null, mapping);
 }
 
 // This renders the final template
 function renderView (req, res, blueprint, redisdata) {
-  var ruffian = partials.basis; //The starting point template
-  for (var i = 0; i < blueprint.length; i++) { // Iterate over all blueprint objects
+  var ruffian = partials[blueprint[0]]; //The starting point template
+  for (var i = 1; i < blueprint.length; i++) { // Iterate over all blueprint objects
     ruffian = preRenderView(ruffian, blueprint[i].partial, blueprint[i].attribute, blueprint[i].destination); // Modify ruffian via preRenderView
-  console.log(ruffian);
   }
   if (redisdata) {
-    renderRedisData(req, res, ruffian, redisdata);
-  } else if (res.statusCode === 404) {
+    if(redisdata instanceof Array) {
+      ruffian = renderCollection(ruffian, "adminupdate", redisdata);
+    } else {
+      ruffian = renderRedisData(ruffian, redisdata);
+    }
+  }
+  if (res.statusCode === 404) {
     res.setHeader('Content-Type', 'text/html');
     res.end(ruffian);
   } else {
@@ -49,12 +39,21 @@ function renderView (req, res, blueprint, redisdata) {
   }
 }
 
-function renderRedisData (req, res, ruffian, redisdata) {
-  var content = { "pagecontent": redisdata }
-      , output = plates.bind(ruffian, content);
-  res.writeHead(200, { 'Content-Type': 'text/html' });
-  res.end(output);
+function renderRedisData (ruffian, redisdata) {
+  //Use simple plates case to render Redis data
+  ruffian = plates.bind(ruffian, redisdata);
+  //Use explicit plates case to render html head variables
+  var map = plates.Map();
+  map.tag('title').use("pagetitle");
+  var output = plates.bind(ruffian, redisdata, map);
+  return output;
 }
 
-module.exports.gettemplate = gettemplate;
+function renderCollection (ruffian, collectionpartial, redisdata) {
+  var output = plates.bind(partials[collectionpartial], redisdata);
+  var mapping = plates.Map();
+  mapping.where("id").is("admincontent").append(output);
+  return plates.bind(ruffian, null, mapping);
+}
+
 module.exports.renderView = renderView;
