@@ -1,7 +1,9 @@
 "use strict";
 
 var fs = require("fs")
-  , plates = require("plates");
+  , plates = require("plates")
+  , app = require("./app")
+  , crypto = require("crypto");
 
 // Read all partials from disk 
 var partials = {};
@@ -30,11 +32,18 @@ function renderView (req, res, blueprint, redisdata) {
       ruffian = renderRedisData(ruffian, redisdata);
     }
   }
+
+  // app.etags[req.path] = etagsum.update('lalala', 'utf8').digest('hex');
+  app.etags[req.url] = (crypto.createHash('md5').update(ruffian, 'utf8').digest("hex")).toString();
   if (res.statusCode === 404) {
     res.setHeader('Content-Type', 'text/html');
+    res.setHeader('etag', app.etags[req.url]);
     res.end(ruffian);
   } else {
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.writeHead(200, { 'Content-Type': 'text/html',
+                         'ETag': app.etags[req.url],
+                         'Cache-Control': "max-age=1000000"
+                       });
     res.end(ruffian);
   }
 }

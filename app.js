@@ -27,8 +27,34 @@ redisClient.auth(process.env.redissecret);
 // Use flatiron http server combo (director/union)
 app.use(flatiron.plugins.http, {
   onError:controller.show404,
-  before: [redSession]
+  before: [redSession, checkETag]
 });
+
+var etags = {};
+
+function checkETag (req, res) {
+  if (etags[req.url] && req.headers['if-none-match'] === etags[req.url]) {
+  // if (etags[req.url] !== undefined && req.headers['if-none-match'] === etags[req.url]) {
+  // if (etags[req.path] !== undefined ) {
+  // if (etags[req.path] !== undefined) {
+  // if ((req.headers['if-none-match'] === etags[req.path])) {
+  // if (req.headers['If-None-Match'] === etags[req.path]) {
+  // console.log(typeof req.headers['if-none-match']);
+  // console.log(typeof etags[req.path]);
+    console.log((req.headers['if-none-match'] === etags[req.url]));
+    res.statusCode = 304;
+    res.end();
+    console.log("Should be a 304");}
+  else {
+    res.emit('next');
+    console.log("Should be a 200");
+    console.log("etagurl: "+etags[req.url]);
+    console.log("inm_header: "+req.headers['if-none-match']);
+    console.log(etags);
+    console.log(req.url);
+  }
+
+}
 
 // Test whether the incoming request has a valid session and set
 // req.session.legit to true/false
@@ -68,3 +94,4 @@ console.log('union with director running on 8080');
 
 module.exports.redisClient = redisClient;
 module.exports.logger = logger;
+module.exports.etags = etags;
