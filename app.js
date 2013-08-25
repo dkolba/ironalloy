@@ -34,13 +34,6 @@ var etags = {};
 
 function checkETag (req, res) {
   if (etags[req.url] && req.headers['if-none-match'] === etags[req.url]) {
-  // if (etags[req.url] !== undefined && req.headers['if-none-match'] === etags[req.url]) {
-  // if (etags[req.path] !== undefined ) {
-  // if (etags[req.path] !== undefined) {
-  // if ((req.headers['if-none-match'] === etags[req.path])) {
-  // if (req.headers['If-None-Match'] === etags[req.path]) {
-  // console.log(typeof req.headers['if-none-match']);
-  // console.log(typeof etags[req.path]);
     console.log((req.headers['if-none-match'] === etags[req.url]));
     res.statusCode = 304;
     res.end();

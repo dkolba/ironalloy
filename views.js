@@ -32,8 +32,6 @@ function renderView (req, res, blueprint, redisdata) {
       ruffian = renderRedisData(ruffian, redisdata);
     }
   }
-
-  // app.etags[req.path] = etagsum.update('lalala', 'utf8').digest('hex');
   app.etags[req.url] = (crypto.createHash('md5').update(ruffian, 'utf8').digest("hex")).toString();
   if (res.statusCode === 404) {
     res.setHeader('Content-Type', 'text/html');
