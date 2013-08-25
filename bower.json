@@ -1,0 +1,23 @@
+{
+  "name": "Ironalloy",
+  "version": "0.0.1",
+  "homepage": "https://github.com/dkolba/ironalloy",
+  "authors": [
+    "Duncan Kolba <duncankolba@gmail.com>", "Simon Bugert <simon.bugert@googlemail.com>"
+  ],
+  "description": "Ironalloy admin panel",
+  "keywords": [
+    "Ironalloy",
+    "administration"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.0.0"
+  }
+}
