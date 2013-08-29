@@ -1,13 +1,27 @@
 module.exports = function(grunt) {
   grunt.initConfig({
 
+    recess: {
+      dist: {
+        options: {
+          compile: true
+        },
+        files: {
+          'public/css/adminbootstrap.css': [
+            'bower_components/bootstrap/less/bootstrap.less',
+            'bower_components/bootstrap/less/theme.less'
+          ]
+        }
+      }
+    },
+
     cssmin: {
       add_banner: {
         options: {
           banner: '/* Minify all css files */'
         },
         files: {
-        'public/css/bootstrap.min.css': ['bower_components/bootstrap/dist/css/bootstrap.css']
+        'public/css/adminbootstrap.min.css': ['public/css/adminbootstrap.css']
         }
       }
     },
@@ -31,10 +45,11 @@ module.exports = function(grunt) {
     }
   });
 
+  grunt.loadNpmTasks('grunt-recess');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-
+  grunt.registerTask('bootstrap', ['recess']);
   grunt.registerTask('minify-css', ['cssmin']);
   grunt.registerTask('minify-js', ['uglify']);
-  grunt.registerTask('default', ['cssmin','uglify']);
+  grunt.registerTask('default', ['recess', 'cssmin','uglify']);
 };
