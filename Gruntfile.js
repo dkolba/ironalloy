@@ -1,55 +1,79 @@
 module.exports = function(grunt) {
   grunt.initConfig({
 
-    recess: {
-      dist: {
-        options: {
-          compile: true
-        },
-        files: {
-          'public/css/adminbootstrap.css': [
-            'bower_components/bootstrap/less/bootstrap.less',
-            'bower_components/bootstrap/less/theme.less'
-          ]
-        }
-      }
+    clean: ['dist'],
+
+    useminPrepare: {
+      options: {
+        dest: 'dist'
+      },
+      html: ['src/*.html']
     },
 
     cssmin: {
-      add_banner: {
-        options: {
-          banner: '/* Minify all css files */'
-        },
-        files: {
-        'public/css/adminbootstrap.min.css': ['public/css/adminbootstrap.css']
-        }
+    },
+
+    copy: {
+      main: {
+        files: [
+          {expand: true,
+           flatten: true,
+           src: ['src/*'],
+           dest: 'dist/',
+           filter: 'isFile'} // flattens results to a single level
+        ]
       }
     },
 
-    uglify: {
-      my_target: {
-        files: {
-          'public/js/scripts.min.js':
-            ['bower_components/bootstrap/dist/js/bootstrap.js',
-            'bower_components/jquery/jquery.js']
-        }
-      },
+    htmlmin: {
+      dist: {
+        options: {
+          removeComments: true,
+          collapseWhitespace: true
+        },
+        files: [{
+          expand: true,
+          cwd: 'dist',
+          src: '{,*/}*.html',
+          dest: 'dist'
+        }]
+      }
+    },
+
+    rev: {
+      files: {
+        src: ['dist/**/*.{js,css,png,jpg}']
+      }
+    },
+
+    usemin: {
+      html: ['dist/{,*/}*.html'],
+      css: ['dist/{,*/}*.css'],
       options: {
-        compress: {
-          global_defs: {
-            "DEBUG": false,
-          dead_code: true
-          }
-        }
+        dirs: ['dist']
       }
     }
+
   });
 
-  grunt.loadNpmTasks('grunt-recess');
-  grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-usemin');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.registerTask('bootstrap', ['recess']);
-  grunt.registerTask('minify-css', ['cssmin']);
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-htmlmin');
+  grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-rev');
+
   grunt.registerTask('minify-js', ['uglify']);
-  grunt.registerTask('default', ['recess', 'cssmin','uglify']);
+  grunt.registerTask('minify-css', ['cssmin']);
+  grunt.registerTask('default', ['clean',
+                                 'copy',
+                                 'useminPrepare',
+                                 'concat',
+                                 'cssmin',
+                                 'uglify',
+                                 'rev',
+                                 'usemin',
+                                 'htmlmin',]);
 };

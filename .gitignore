@@ -18,3 +18,4 @@ bower_components/
 public/
 .DS_Store
 somefile.log
+dist/
