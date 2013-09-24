@@ -52,8 +52,15 @@ module.exports = function(grunt) {
       options: {
         dirs: ['dist']
       }
+    },
+    mochaTest: {
+      test: {
+        options: {
+          reporter: 'spec'
+        },
+        src: ['test/**/*.js']
+      }
     }
-
   });
 
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -64,9 +71,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-htmlmin');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-rev');
+  grunt.loadNpmTasks('grunt-mocha-test');
 
   grunt.registerTask('minify-js', ['uglify']);
   grunt.registerTask('minify-css', ['cssmin']);
+  grunt.registerTask('test', ['mochaTest']);
   grunt.registerTask('default', ['clean',
                                  'copy',
                                  'useminPrepare',
@@ -75,5 +84,5 @@ module.exports = function(grunt) {
                                  'uglify',
                                  'rev',
                                  'usemin',
-                                 'htmlmin',]);
+                                 'htmlmin']);
 };

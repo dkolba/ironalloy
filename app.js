@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 "use strict";
 
 var http = require("http")
@@ -34,17 +36,11 @@ var etags = {};
 
 function checkETag (req, res) {
   if (etags[req.url] && req.headers['if-none-match'] === etags[req.url]) {
-    console.log((req.headers['if-none-match'] === etags[req.url]));
     res.statusCode = 304;
     res.end();
-    console.log("Should be a 304");}
+  }
   else {
     res.emit('next');
-    console.log("Should be a 200");
-    console.log("etagurl: "+etags[req.url]);
-    console.log("inm_header: "+req.headers['if-none-match']);
-    console.log(etags);
-    console.log(req.url);
   }
 
 }
