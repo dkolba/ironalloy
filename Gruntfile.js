@@ -7,7 +7,7 @@ module.exports = function(grunt) {
       options: {
         dest: 'dist'
       },
-      html: ['src/*.html']
+      html: ['src/**/*.html']
     },
 
     cssmin: {
@@ -17,10 +17,25 @@ module.exports = function(grunt) {
       main: {
         files: [
           {expand: true,
-           flatten: true,
-           src: ['src/*'],
+           cwd: 'src/',
+           // flatten: true,
+           src: ['**/*.html'],
+           // src: ['src/**/*'],
            dest: 'dist/',
            filter: 'isFile'} // flattens results to a single level
+        ]
+      },
+      assets: {
+        files: [
+          {expand: true,
+           cwd: 'dist/public/',
+           src: ['js/**', 'css/**'],
+           dest: 'public/'},
+          {expand: true,
+           flatten: true,
+           cwd: 'dist/',
+           src: ['templates/**'],
+           dest: 'templates/'}
         ]
       }
     },
@@ -53,6 +68,7 @@ module.exports = function(grunt) {
         dirs: ['dist']
       }
     },
+
     mochaTest: {
       test: {
         options: {
@@ -77,12 +93,13 @@ module.exports = function(grunt) {
   grunt.registerTask('minify-css', ['cssmin']);
   grunt.registerTask('test', ['mochaTest']);
   grunt.registerTask('default', ['clean',
-                                 'copy',
+                                 'copy:main',
                                  'useminPrepare',
                                  'concat',
                                  'cssmin',
                                  'uglify',
                                  'rev',
                                  'usemin',
-                                 'htmlmin']);
+                                 'htmlmin',
+                                 'copy:assets']);
 };
