@@ -22,7 +22,11 @@ var routes = {
       '/:pagename/?': {
         get: controller.updateCreate
       }
-    }
+    },
+   '/passwd/?' : {
+     get: controller.showPasswd,
+     post: controller.postPasswd
+   }
   },
   '/login/?' : {
     get: controller.showLogin,

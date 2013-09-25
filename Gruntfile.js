@@ -35,7 +35,8 @@ module.exports = function(grunt) {
            flatten: true,
            cwd: 'dist/',
            src: ['templates/**'],
-           dest: 'templates/'}
+           dest: 'templates/',
+           filter: 'isFile'}
         ]
       }
     },

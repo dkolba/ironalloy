@@ -7,11 +7,10 @@ var fs = require("fs")
 
 // Read all partials from disk 
 var partials = {};
-var filenames = fs.readdirSync('templates/');
+var filenames = fs.readdirSync(__dirname + '/../templates/');
 for (var i = 0; i < filenames.length; i++) {
-  partials[filenames[i].slice(0, -5)] = fs.readFileSync('templates/' + filenames[i], 'utf8');
+  partials[filenames[i].slice(0, -5)] = fs.readFileSync(__dirname + '/../templates/' + filenames[i], 'utf8');
 }
-
 // This inserts a partial at a certain position
 function preRenderView (ruffian, partial, attribute, destination) {
   var mapping = plates.Map();

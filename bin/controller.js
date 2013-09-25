@@ -1,7 +1,9 @@
 "use strict";
 var app = require("./app")
   , views = require("./views")
-  , models = require("./models");
+  , models = require("./models")
+  , crypto = require("crypto")
+  , key = 'abcdeg';
 
 // render '/' http request (root)
 function showIndex() {
@@ -85,6 +87,43 @@ function postLogin () {
         res.redirect("/login", 301);
       }
     });
+}
+
+function showPasswd() {
+  var req = this.req
+    , res = this.res
+    , blueprint = ["adminbasis", { partial: 'adminpasswd',
+                                   attribute: 'id',
+                                   destination: 'admincontent'
+                                 }];
+  if (!req.session.legit) {
+    res.redirect("/login", 301);
+  }
+  else {
+    views.renderView(req, res, blueprint);
+  }
+}
+
+function postPasswd () {
+  var req = this.req
+    , res = this.res
+    , formdata = req.body;
+
+  if (!req.session.legit) {
+    res.redirect("/login", 301);
+  }
+  else {
+    if (formdata.password === formdata.passwordrepeat){
+      var hash = (crypto.createHmac('sha1', key).update(formdata.password).digest('hex')).toString();
+      app.redisClient.set("root", hash,
+        function(err) {
+          res.redirect("/admin", 301);
+        });
+    }
+    else {
+      res.redirect("/admin/passwd", 301);
+    }
+  }
 }
 
 // Show create form
@@ -197,11 +236,13 @@ module.exports.deletePage = deletePage;
 module.exports.logout = logout;
 module.exports.postLogin = postLogin;
 module.exports.postUpdate = postUpdate;
+module.exports.postPasswd = postPasswd;
 module.exports.show404 = show404;
 module.exports.showAdmin = showAdmin;
 module.exports.showCreate = showCreate;
 module.exports.showIndex = showIndex;
 module.exports.showLogin = showLogin;
 module.exports.showPage = showPage;
+module.exports.showPasswd = showPasswd;
 module.exports.showUpdate = showUpdate;
 module.exports.updateCreate = updateCreate;

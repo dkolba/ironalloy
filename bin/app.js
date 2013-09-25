@@ -72,7 +72,7 @@ function redSession (req, res) {
 
 // Use st as file server
 app.use(flatiron.plugins.static, {
-  dir : __dirname + '/public',
+  dir : __dirname + '/../public',
   url : 'public/'
 });
 
