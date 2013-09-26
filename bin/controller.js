@@ -76,9 +76,10 @@ function postLogin () {
     , formdata = req.body
     , res = this.res;
 
+  var hash = (crypto.createHmac('sha1', key).update(formdata.password).digest('hex')).toString();
   app.redisClient.get("root",
     function(err, password) {
-      if (password && formdata.password === password &&
+      if (password && hash === password &&
       formdata.username === "root"){
         req.session.set('auth', formdata.username);
         res.redirect("/admin", 301);
