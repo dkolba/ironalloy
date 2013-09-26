@@ -66,6 +66,7 @@ module.exports = function(grunt) {
       html: ['dist/{,*/}*.html'],
       css: ['dist/{,*/}*.css'],
       options: {
+        basedir: 'dist',
         dirs: ['dist']
       }
     },
