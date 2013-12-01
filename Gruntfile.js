@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
   grunt.initConfig({
 
-    clean: ['dist'],
+    clean: ['dist', 'templates'],
 
     useminPrepare: {
       options: {
@@ -66,6 +66,7 @@ module.exports = function(grunt) {
       html: ['dist/{,*/}*.html'],
       css: ['dist/{,*/}*.css'],
       options: {
+        basedir: 'dist',
         dirs: ['dist']
       }
     },
