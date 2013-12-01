@@ -232,6 +232,12 @@ function show404(err, req, res) {
     views.renderView(req, res, blueprint);
 }
 
+function showTest (pagename) {
+  var req = this.req
+    , res = this.res;
+  models.getPageObj(req, res, pagename);
+}
+
 module.exports.deletePage = deletePage;
 module.exports.logout = logout;
 module.exports.postLogin = postLogin;
@@ -246,3 +252,4 @@ module.exports.showPage = showPage;
 module.exports.showPasswd = showPasswd;
 module.exports.showUpdate = showUpdate;
 module.exports.updateCreate = updateCreate;
+module.exports.showTest = showTest;
