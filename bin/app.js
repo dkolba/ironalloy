@@ -29,7 +29,7 @@ redisClient.auth(process.env.redissecret);
 // Use flatiron http server combo (director/union)
 app.use(flatiron.plugins.http, {
   onError:controller.show404,
-  before: [redSession, checkETag]
+  before: [removePoweredBy, redSession, checkETag]
 });
 
 var etags = {};
@@ -42,8 +42,12 @@ function checkETag (req, res) {
   else {
     res.emit('next');
   }
-
 }
+
+function removePoweredBy(req, res) {
+    res.removeHeader('X-Powered-By');
+    res.emit('next');
+  };
 
 // Test whether the incoming request has a valid session and set
 // req.session.legit to true/false
