@@ -236,7 +236,7 @@ function show404(err, req, res) {
 function showTest (pagename) {
   var req = this.req
     , res = this.res;
-  models.getPageObj(req, res, pagename);
+  models.getPageObj(req, res, pagename, views.renderView2);
 }
 
 module.exports.deletePage = deletePage;

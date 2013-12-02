@@ -3,7 +3,9 @@
 var fs = require("fs")
   , plates = require("plates")
   , app = require("./app")
-  , crypto = require("crypto");
+  , crypto = require("crypto")
+  , dishwasher = require("dishwasher")
+  , mappings = require("./mappings.js");
 
 // Read all partials from disk 
 var partials = {};
@@ -62,4 +64,12 @@ function renderCollection (ruffian, collectionpartial, redisdata) {
   return plates.bind(ruffian, null, mapping);
 }
 
+dishwasher.setFolder('../templates/');
+function renderView2(req, res, pageobj, finalarray) {
+  res.writeHead(200, {'Content-Type': 'text/html'});
+  res.end(dishwasher.rinse(pageobj, finalarray, mappings.pagemap, mappings.singlemap, mappings.multimap));
+  // res.end(JSON.stringify(pageobj)+JSON.stringify(finalarray));
+}
+
 module.exports.renderView = renderView;
+module.exports.renderView2 = renderView2;

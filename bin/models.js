@@ -32,8 +32,7 @@ function getRedisSortedSet(req, res, blueprint) {
 
 // This fetches data from redis and builds an object and array which can be used
 // by dishwasher.
-var getPageObj = function getPageObj (req, res, pagename) {
-  console.log('getPageObj wurde aufgerufen');
+function getPageObj (req, res, pagename, callback) {
   var pageobj, multiarray;
   var finalarray = [];
 
@@ -84,7 +83,7 @@ var getPageObj = function getPageObj (req, res, pagename) {
       });
     }
     else {
-      callback(req, res);
+      callback(req, res, pageobj, finalarray);
     }
   }
 
@@ -103,7 +102,7 @@ var getPageObj = function getPageObj (req, res, pagename) {
 
       // If the current element is the last one in multiarray fire the callback
       if (index + 1  === multiarray.length) {
-        callback(req, res);
+        callback(req, res, pageobj, finalarray);
       }
     });
   }
@@ -113,33 +112,8 @@ var getPageObj = function getPageObj (req, res, pagename) {
     element.collection = this.collname;
     finalarray.push(element);
   }
-
-  function callback(req, res) {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    // res.end(dishwasher.rinse(pageobj, finalarray, pagemap, singlemap, multimap));
-    res.end(JSON.stringify(pageobj)+JSON.stringify(finalarray));
-  }
 };
 
 module.exports.getRedisHash = getRedisHash;
 module.exports.getRedisSortedSet = getRedisSortedSet;
 module.exports.getPageObj = getPageObj;
-
-// function singlemap (singledest) {
-//   var map = plates.Map();
-//   map.where('id').is(singledest).use('fragment');
-//   return map;
-// }
-//
-// function multimap (collection) {
-//   var map = plates.Map();
-//   map.where('id').is(collection).use('fragment');
-//   return map;
-// }
-//
-// function pagemap () {
-//   var map = plates.Map();
-//   map.where('name').is('description').use('description').as('content');
-//   map.tag('title').use('title');
-//   return map;
-// }
