@@ -37,9 +37,7 @@ var routes = {
   },
   '/:pagename/?' : {
     get: controller.showPage
-  },
-  '/test/:pagename/?' : {
-    get: controller.showTest
   }
 };
+
 module.exports.routes = routes;

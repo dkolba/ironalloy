@@ -7,6 +7,9 @@ var fs = require("fs")
   , dishwasher = require("dishwasher")
   , mappings = require("./mappings.js");
 
+// Load templates
+dishwasher.setFolder('../templates/');
+
 // Read all partials from disk 
 var partials = {};
 var filenames = fs.readdirSync(__dirname + '/../templates/');
@@ -64,11 +67,26 @@ function renderCollection (ruffian, collectionpartial, redisdata) {
   return plates.bind(ruffian, null, mapping);
 }
 
-dishwasher.setFolder('../templates/');
+
 function renderView2(req, res, pageobj, finalarray) {
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  res.end(dishwasher.rinse(pageobj, finalarray, mappings.pagemap, mappings.singlemap, mappings.multimap));
-  // res.end(JSON.stringify(pageobj)+JSON.stringify(finalarray));
+  var hypertext = dishwasher.rinse(pageobj,
+                                   finalarray,
+                                   mappings.pagemap,
+                                   mappings.singlemap,
+                                   mappings.multimap);
+
+  app.etags[req.url] = (crypto
+                         .createHash('md5')
+                         .update(hypertext, 'utf8')
+                         .digest("hex"))
+                         .toString();
+
+  res.writeHead(200, {'Content-Type': 'text/html',
+                      'ETag': app.etags[req.url],
+                      'Cache-Control': "max-age=1000000"
+                     });
+
+  res.end(hypertext);
 }
 
 module.exports.renderView = renderView;

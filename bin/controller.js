@@ -5,34 +5,18 @@ var app = require("./app")
   , crypto = require("crypto")
   , key = 'abcdeg';
 
-// render '/' http request (root)
-function showIndex() {
+function showIndex () {
   var req = this.req
-    , res = this.res
-    , blueprint = ["basis", { partial: 'menu',
-                              attribute: 'id',
-                              destination: 'pagecontent'
-                            },
-                            { partial: 'sidebar',
-                              attribute: 'id',
-                              destination: 'menu'
-                            }];
-  models.getRedisHash(req, res, blueprint, "index");
+    , res = this.res;
+  models.getPageObj(req, res, 'index', views.renderView2);
 }
 
 // Fetch page via pagename from redis and render template
 function showPage(pagename) {
   var req = this.req
     , res = this.res
-    , blueprint = ["basis", { partial: 'menu',
-                              attribute: 'id',
-                              destination: 'pagecontent'
-                            },
-                            { partial: 'sidebar',
-                              attribute: 'id',
-                              destination: 'menu'
-                            }];
-  models.getRedisHash(req, res, blueprint, pagename);
+  // models.getRedisHash(req, res, blueprint, pagename);
+  models.getPageObj(req, res, pagename, views.renderView2);
 }
 
 function logout (req, res) {
@@ -47,16 +31,18 @@ function logout (req, res) {
 // Fetch page via pagename from redis and render template
 function showAdmin() {
   var req = this.req
-    , res = this.res
-    , blueprint = ["adminbasis", { partial: 'admin',
-                                   attribute: 'id',
-                                   destination: 'admincontent'
-                                 }];
+    , res = this.res;
+    // , res = this.res
+    // , blueprint = ["adminbasis", { partial: 'admin',
+    //                                attribute: 'id',
+    //                                destination: 'admincontent'
+    //                              }];
   if (!req.session.legit) {
    res.redirect("/login", 301);
   }
   else {
-    views.renderView(req, res, blueprint);
+    models.getAdminObj(req, res, 'adminIndex', views.renderView2);
+    // views.renderView(req, res, blueprint);
   }
 }
 
@@ -233,12 +219,6 @@ function show404(err, req, res) {
     views.renderView(req, res, blueprint);
 }
 
-function showTest (pagename) {
-  var req = this.req
-    , res = this.res;
-  models.getPageObj(req, res, pagename, views.renderView2);
-}
-
 module.exports.deletePage = deletePage;
 module.exports.logout = logout;
 module.exports.postLogin = postLogin;
@@ -253,4 +233,3 @@ module.exports.showPage = showPage;
 module.exports.showPasswd = showPasswd;
 module.exports.showUpdate = showUpdate;
 module.exports.updateCreate = updateCreate;
-module.exports.showTest = showTest;

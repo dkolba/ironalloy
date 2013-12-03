@@ -1,7 +1,8 @@
 "use strict";
 var app = require("./app")
   , views = require("./views")
-  , controller = require("./controller");
+  , controller = require("./controller")
+  , blueprints = require("./blueprints");
 
 function getRedisHash(req, res, blueprint, pagename) {
   app.redisClient.hgetall("page:" + pagename,
@@ -35,12 +36,12 @@ function getRedisSortedSet(req, res, blueprint) {
 function getPageObj (req, res, pagename, callback) {
   var pageobj, multiarray;
   var finalarray = [];
-
   // Fetch pagename from redis
   app.redisClient.hgetall('page:' + pagename, getPageSingleArray);
 
   // Fetch the singleset which belongs to pagename key from redis
   function getPageSingleArray(err, hash) {
+    console.log("Error: ", err);
     pageobj = hash;
     pageobj.pagesingleset = [];
     pageobj.pagemultiset = [];
@@ -66,7 +67,7 @@ function getPageObj (req, res, pagename, callback) {
     app.redisClient.smembers('page:' + pagename + ':multiset', getPageMultiArray);
   }
 
-  // Fetch each 
+  // Fetch each
   function getPageMultiArray (err, redisset) {
     if(redisset.length) {
       var multi = app.redisClient.multi();
@@ -114,6 +115,12 @@ function getPageObj (req, res, pagename, callback) {
   }
 };
 
+function getAdminObj(req, res, pagename, callback) {
+  var bp = blueprints.adminIndex;
+  callback(req, res, bp.pageobject, bp.finalarray);
+}
+
 module.exports.getRedisHash = getRedisHash;
 module.exports.getRedisSortedSet = getRedisSortedSet;
 module.exports.getPageObj = getPageObj;
+module.exports.getAdminObj = getAdminObj;

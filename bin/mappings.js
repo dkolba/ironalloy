@@ -15,7 +15,7 @@ mappings.multimap = function multimap (collection) {
 
 mappings.pagemap = function pagemap () {
   var map = plates.Map();
-  map.where('name').is('description').use('description').as('content');
+  map.where('name').is('description').use('desc').as('content');
   map.tag('title').use('title');
   return map;
 };
