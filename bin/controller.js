@@ -1,3 +1,6 @@
+// TODO: Globally replace req/res with this.req/this.res and remove var statements
+// TODO: Make postLogin() secure by not hashing immediately
+
 "use strict";
 var app = require("./app")
   , views = require("./views")
@@ -14,12 +17,11 @@ function showIndex () {
 // Fetch page via pagename from redis and render template
 function showPage(pagename) {
   var req = this.req
-    , res = this.res
-  // models.getRedisHash(req, res, blueprint, pagename);
+    , res = this.res;
   models.getPageObj(req, res, pagename, views.renderView2);
 }
 
-function logout (req, res) {
+function logout () {
   var req = this.req
     , res = this.res;
   req.session.del("auth", function(err) {
@@ -32,28 +34,19 @@ function logout (req, res) {
 function showAdmin() {
   var req = this.req
     , res = this.res;
-    // , res = this.res
-    // , blueprint = ["adminbasis", { partial: 'admin',
-    //                                attribute: 'id',
-    //                                destination: 'admincontent'
-    //                              }];
+
   if (!req.session.legit) {
    res.redirect("/login", 301);
   }
   else {
     models.getAdminObj(req, res, 'adminIndex', views.renderView2);
-    // views.renderView(req, res, blueprint);
   }
 }
 
 function showLogin() {
   var req = this.req
-    , res = this.res
-    , blueprint = ["adminbasis", { partial: 'adminlogin',
-                                   attribute: 'id',
-                                   destination: 'admincontent'
-                                 }];
-  views.renderView(req, res, blueprint);
+    , res = this.res;
+  models.getAdminObj(req, res, 'adminLogin', views.renderView2);
 }
 
 // Send formdata to redis and test whether username and password are valid
@@ -78,16 +71,12 @@ function postLogin () {
 
 function showPasswd() {
   var req = this.req
-    , res = this.res
-    , blueprint = ["adminbasis", { partial: 'adminpasswd',
-                                   attribute: 'id',
-                                   destination: 'admincontent'
-                                 }];
+    , res = this.res;
   if (!req.session.legit) {
     res.redirect("/login", 301);
   }
   else {
-    views.renderView(req, res, blueprint);
+    models.getAdminObj(req, res, 'adminPasswd', views.renderView2);
   }
 }
 
@@ -116,16 +105,17 @@ function postPasswd () {
 // Show create form
 function showCreate() {
   var req = this.req
-    , res = this.res
-    , blueprint = ["adminbasis", { partial: 'admincreate',
-                                   attribute: 'id',
-                                   destination: 'admincontent'
-                                 }];
+    , res = this.res;
+    // , blueprint = ["adminbasis", { partial: 'admincreate',
+    //                                attribute: 'id',
+    //                                destination: 'admincontent'
+    //                              }];
   if (!req.session.legit) {
    res.redirect("/login", 301);
   }
   else {
-    views.renderView(req, res, blueprint);
+    // views.renderView(req, res, blueprint);
+    models.getAdminObj(req, res, 'adminCreate', views.renderView2);
   }
 }
 

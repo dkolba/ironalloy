@@ -41,7 +41,6 @@ function getPageObj (req, res, pagename, callback) {
 
   // Fetch the singleset which belongs to pagename key from redis
   function getPageSingleArray(err, hash) {
-    console.log("Error: ", err);
     pageobj = hash;
     pageobj.pagesingleset = [];
     pageobj.pagemultiset = [];
@@ -116,7 +115,7 @@ function getPageObj (req, res, pagename, callback) {
 };
 
 function getAdminObj(req, res, pagename, callback) {
-  var bp = blueprints.adminIndex;
+  var bp = blueprints[pagename];
   callback(req, res, bp.pageobject, bp.finalarray);
 }
 
