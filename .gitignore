@@ -19,4 +19,5 @@ public/
 .DS_Store
 somefile.log
 dist/
-templates/
+!src/templates
+templates/*

@@ -114,9 +114,38 @@ function getPageObj (req, res, pagename, callback) {
   }
 };
 
-function getAdminObj(req, res, pagename, callback) {
-  var bp = blueprints[pagename];
-  callback(req, res, bp.pageobject, bp.finalarray);
+function getAdminObj(req, res, blueprint, pagename, callback) {
+  var bp = blueprints[blueprint];
+
+  // Remove blueprint configuration object from finalarray, retcon config data
+  // and pageobject from redis and inject into finalarray.
+  function modifyFinalarray(err, hash) {
+    var retconned = {};
+
+    // Delete keys of which we know we want to replace them (just in case...).
+    delete hash.destination;
+    delete hash.partial;
+    delete hash.collection;
+
+    // Clone finalarray blueprint object and pageobject into a new object and
+    // replace in finalarray.
+    for (var key in hash) {retconned[key] = hash[key]};
+    for (var key in bp.finalarray[0]) {retconned[key] = bp.finalarray[0][key]};
+
+    retconned.pagename = pagename;
+
+    bp.finalarray.pop();
+    bp.finalarray.push(retconned);
+
+    callback(req, res, bp.pageobject, bp.finalarray);
+  }
+
+  // Check if we are dealing with existing data and act accordingly.
+  if (pagename) {
+    app.redisClient.hgetall('page:' + pagename, modifyFinalarray);
+  } else {
+    callback(req, res, bp.pageobject, bp.finalarray);
+  }
 }
 
 module.exports.getRedisHash = getRedisHash;

@@ -39,14 +39,14 @@ function showAdmin() {
    res.redirect("/login", 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminIndex', views.renderView2);
+    models.getAdminObj(req, res, 'adminIndex', null, views.renderView2);
   }
 }
 
 function showLogin() {
   var req = this.req
     , res = this.res;
-  models.getAdminObj(req, res, 'adminLogin', views.renderView2);
+  models.getAdminObj(req, res, 'adminLogin', null, views.renderView2);
 }
 
 // Send formdata to redis and test whether username and password are valid
@@ -76,7 +76,7 @@ function showPasswd() {
     res.redirect("/login", 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminPasswd', views.renderView2);
+    models.getAdminObj(req, res, 'adminPasswd', null, views.renderView2);
   }
 }
 
@@ -106,6 +106,18 @@ function postPasswd () {
 function showCreate() {
   var req = this.req
     , res = this.res;
+  if (!req.session.legit) {
+   res.redirect("/login", 301);
+  }
+  else {
+    models.getAdminObj(req, res, 'adminCreate', null, views.renderView2);
+  }
+}
+
+// Show create form with old data
+function updateCreate(pagename) {
+  var req = this.req
+    , res = this.res;
     // , blueprint = ["adminbasis", { partial: 'admincreate',
     //                                attribute: 'id',
     //                                destination: 'admincontent'
@@ -114,24 +126,8 @@ function showCreate() {
    res.redirect("/login", 301);
   }
   else {
-    // views.renderView(req, res, blueprint);
-    models.getAdminObj(req, res, 'adminCreate', views.renderView2);
-  }
-}
-
-// Show create form with old data
-function updateCreate(pagename) {
-  var req = this.req
-    , res = this.res
-    , blueprint = ["adminbasis", { partial: 'admincreate',
-                                   attribute: 'id',
-                                   destination: 'admincontent'
-                                 }];
-  if (!req.session.legit) {
-   res.redirect("/login", 301);
-  }
-  else {
-    models.getRedisHash(req, res, blueprint, pagename);
+    // models.getRedisHash(req, res, blueprint, pagename);
+    models.getAdminObj(req, res, 'adminCreate', pagename, views.renderView2);
   }
 }
 
@@ -157,10 +153,13 @@ function postUpdate() {
    res.redirect("/login", 301);
   }
   else {
+    console.log(formdata.pagetitle);
     app.redisClient.hmset("page:" + formdata.pagename,
         {"pagetitle": formdata.pagetitle, "pagecontent": formdata.pagecontent},
       function(err) {
+        if (err) {console.log(err)};
         res.redirect("/admin/update", 301);
+        console.log('yop');
       });
     app.redisClient.zadd(["allpages", 0, formdata.pagename],
       function(err, redisdata) {
