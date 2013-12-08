@@ -68,7 +68,7 @@ function renderCollection (ruffian, collectionpartial, redisdata) {
 }
 
 
-function renderView2(req, res, pageobj, finalarray) {
+function renderView2(req, res, pageobj, finalarray, mappings) {
   var hypertext = dishwasher.rinse(pageobj,
                                    finalarray,
                                    mappings.pagemap,

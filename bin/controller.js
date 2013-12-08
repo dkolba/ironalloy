@@ -1,24 +1,27 @@
 // TODO: Globally replace req/res with this.req/this.res and remove var statements
 // TODO: Make postLogin() secure by not hashing immediately
+// TODO: Delete page:multiset and page:singleset in deletePage() 
+// TODO: Move database parts of postLogin() into models.js
 
 "use strict";
 var app = require("./app")
   , views = require("./views")
   , models = require("./models")
+  , mappings = require("./mappings")
   , crypto = require("crypto")
   , key = 'abcdeg';
 
 function showIndex () {
   var req = this.req
     , res = this.res;
-  models.getPageObj(req, res, 'index', views.renderView2);
+  models.getPageObj(req, res, 'index', mappings.base, views.renderView2);
 }
 
 // Fetch page via pagename from redis and render template
 function showPage(pagename) {
   var req = this.req
     , res = this.res;
-  models.getPageObj(req, res, pagename, views.renderView2);
+  models.getPageObj(req, res, pagename, mappings.base, views.renderView2);
 }
 
 function logout () {
@@ -39,14 +42,14 @@ function showAdmin() {
    res.redirect("/login", 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminIndex', null, views.renderView2);
+    models.getAdminObj(req, res, 'adminIndex', null, mappings.base, views.renderView2);
   }
 }
 
 function showLogin() {
   var req = this.req
     , res = this.res;
-  models.getAdminObj(req, res, 'adminLogin', null, views.renderView2);
+  models.getAdminObj(req, res, 'adminLogin', null, mappings.base, views.renderView2);
 }
 
 // Send formdata to redis and test whether username and password are valid
@@ -76,7 +79,7 @@ function showPasswd() {
     res.redirect("/login", 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminPasswd', null, views.renderView2);
+    models.getAdminObj(req, res, 'adminPasswd', null, mappings.base, views.renderView2);
   }
 }
 
@@ -110,7 +113,7 @@ function showCreate() {
    res.redirect("/login", 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminCreate', null, views.renderView2);
+    models.getAdminObj(req, res, 'adminCreate', null, mappings.base, views.renderView2);
   }
 }
 
@@ -118,16 +121,11 @@ function showCreate() {
 function updateCreate(pagename) {
   var req = this.req
     , res = this.res;
-    // , blueprint = ["adminbasis", { partial: 'admincreate',
-    //                                attribute: 'id',
-    //                                destination: 'admincontent'
-    //                              }];
   if (!req.session.legit) {
    res.redirect("/login", 301);
   }
   else {
-    // models.getRedisHash(req, res, blueprint, pagename);
-    models.getAdminObj(req, res, 'adminCreate', pagename, views.renderView2);
+    models.getAdminObj(req, res, 'adminCreate', pagename, mappings.base, views.renderView2);
   }
 }
 
@@ -139,8 +137,7 @@ function showUpdate() {
    res.redirect("/login", 301);
   }
   else {
-    var blueprint = ["adminbasis"];
-    models.getRedisSortedSet(req, res, blueprint);
+    models.getAdminArray(req, res, 'adminList', null, mappings.base, views.renderView2);
   }
 }
 

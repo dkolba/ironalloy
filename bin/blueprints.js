@@ -62,6 +62,24 @@ var blueprints = {
       greeting:'ahoi',
       collection:'none'
     }
+  },
+
+  adminList: {
+    pageobject: {
+      title: 'List all available pages',
+      description: 'Existing pages',
+      mastertemplate: 'adminbasis',
+      pagesingleset: ['allpagesframe'],
+      pagemultiset: ['allpages']
+    },
+    adminListFrame: {
+      partial:'adminlistframe',
+      destination:'admincontent',
+      collection:'none'
+    },
+    adminListTable: {
+      collection:'allpages',
+    }
   }
 };
 
@@ -69,5 +87,6 @@ blueprints.adminIndex.finalarray = [blueprints.adminIndex.adminWelcome];
 blueprints.adminLogin.finalarray = [blueprints.adminLogin.adminLoginForm];
 blueprints.adminPasswd.finalarray = [blueprints.adminPasswd.adminPasswdForm];
 blueprints.adminCreate.finalarray = [blueprints.adminCreate.adminCreateForm];
+blueprints.adminList.finalarray = [blueprints.adminList.adminListFrame];
 
 module.exports = blueprints;

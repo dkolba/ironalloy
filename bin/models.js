@@ -33,7 +33,7 @@ function getRedisSortedSet(req, res, blueprint) {
 
 // This fetches data from redis and builds an object and array which can be used
 // by dishwasher.
-function getPageObj (req, res, pagename, callback) {
+function getPageObj (req, res, pagename, mappings, callback) {
   var pageobj, multiarray;
   var finalarray = [];
   // Fetch pagename from redis
@@ -83,7 +83,7 @@ function getPageObj (req, res, pagename, callback) {
       });
     }
     else {
-      callback(req, res, pageobj, finalarray);
+      callback(req, res, pageobj, finalarray, mappings);
     }
   }
 
@@ -102,7 +102,7 @@ function getPageObj (req, res, pagename, callback) {
 
       // If the current element is the last one in multiarray fire the callback
       if (index + 1  === multiarray.length) {
-        callback(req, res, pageobj, finalarray);
+        callback(req, res, pageobj, finalarray, mappings);
       }
     });
   }
@@ -112,9 +112,9 @@ function getPageObj (req, res, pagename, callback) {
     element.collection = this.collname;
     finalarray.push(element);
   }
-};
+}
 
-function getAdminObj(req, res, blueprint, pagename, callback) {
+function getAdminObj(req, res, blueprint, pagename, mappings, callback) {
   var bp = blueprints[blueprint];
 
   // Remove blueprint configuration object from finalarray, retcon config data
@@ -129,26 +129,56 @@ function getAdminObj(req, res, blueprint, pagename, callback) {
 
     // Clone finalarray blueprint object and pageobject into a new object and
     // replace in finalarray.
-    for (var key in hash) {retconned[key] = hash[key]};
-    for (var key in bp.finalarray[0]) {retconned[key] = bp.finalarray[0][key]};
+    for (var key1 in hash) {retconned[key1] = hash[key1];}
+    for (var key2 in bp.finalarray[0]) {retconned[key2] = bp.finalarray[0][key2];}
 
     retconned.pagename = pagename;
 
     bp.finalarray.pop();
     bp.finalarray.push(retconned);
 
-    callback(req, res, bp.pageobject, bp.finalarray);
+    callback(req, res, bp.pageobject, bp.finalarray, mappings);
   }
 
   // Check if we are dealing with existing data and act accordingly.
   if (pagename) {
     app.redisClient.hgetall('page:' + pagename, modifyFinalarray);
   } else {
-    callback(req, res, bp.pageobject, bp.finalarray);
+    callback(req, res, bp.pageobject, bp.finalarray, mappings);
   }
+}
+
+function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
+  var bp = blueprints[blueprint];
+  var finalarray  = [];
+
+  // Deep copy of array of objects bp.finalarray
+  for (var i = 0; i < bp.finalarray.length; i++) {
+    finalarray.push({});
+    for(var key in bp.finalarray[i]) {
+      finalarray[i][key] = bp.finalarray[i][key];
+    }
+  }
+
+  // Get sorted set of all existing pages
+  app.redisClient.zrange("allpages", 0 ,-1 ,
+    function(err, allpagesarray) {
+      if(err) throw err;
+
+      // Insert object for each page in allpagesarray
+      allpagesarray.forEach(function(element)  {
+        var tmp = {};
+        tmp.pagename = element;
+        for (var key in bp.adminListTable) {tmp[key] = bp.adminListTable[key];}
+        finalarray.push(tmp);
+      });
+
+      callback(req, res, bp.pageobject, finalarray, mappings);
+  });
 }
 
 module.exports.getRedisHash = getRedisHash;
 module.exports.getRedisSortedSet = getRedisSortedSet;
 module.exports.getPageObj = getPageObj;
 module.exports.getAdminObj = getAdminObj;
+module.exports.getAdminArray = getAdminArray;
