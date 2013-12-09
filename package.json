@@ -31,7 +31,7 @@
     "keygrip": "~0.2.2",
     "cookies": "~0.3.6",
     "winston": "~0.7.2",
-    "dishwasher": "~0.3.0"
+    "dishwasher": "~0.3.1"
   },
   "devDependencies": {
     "mocha": "1.3.0",

@@ -120,24 +120,22 @@ function getAdminObj(req, res, blueprint, pagename, mappings, callback) {
   // Remove blueprint configuration object from finalarray, retcon config data
   // and pageobject from redis and inject into finalarray.
   function modifyFinalarray(err, hash) {
-    var retconned = {};
+    var retconned = {}
+      , finalarray = [];
 
     // Delete keys of which we know we want to replace them (just in case...).
     delete hash.destination;
     delete hash.partial;
     delete hash.collection;
 
-    // Clone finalarray blueprint object and pageobject into a new object and
-    // replace in finalarray.
+    // Clone finalarray blueprint object and pageobject into a new object. 
     for (var key1 in hash) {retconned[key1] = hash[key1];}
     for (var key2 in bp.finalarray[0]) {retconned[key2] = bp.finalarray[0][key2];}
 
     retconned.pagename = pagename;
 
-    bp.finalarray.pop();
-    bp.finalarray.push(retconned);
-
-    callback(req, res, bp.pageobject, bp.finalarray, mappings);
+    finalarray.push(retconned);
+    callback(req, res, bp.pageobject, finalarray, mappings);
   }
 
   // Check if we are dealing with existing data and act accordingly.
@@ -172,7 +170,6 @@ function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
         for (var key in bp.adminListTable) {tmp[key] = bp.adminListTable[key];}
         finalarray.push(tmp);
       });
-
       callback(req, res, bp.pageobject, finalarray, mappings);
   });
 }
