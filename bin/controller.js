@@ -197,12 +197,13 @@ function show404(err, req, res) {
         , req = this.req 
     }
 
-    var blueprint = ["basis", { partial: '404',
-                       attribute: 'id',
-                       destination: 'pagecontent'
-                     }];
+    // var blueprint = ["basis", { partial: '404',
+    //                    attribute: 'id',
+    //                    destination: 'pagecontent'
+    //                  }];
     res.statusCode = 404;
-    views.renderView(req, res, blueprint);
+    // views.renderView(req, res, blueprint);
+    models.getPageObj(req, res, 'index', mappings.base, views.renderView2);
 }
 
 module.exports.deletePage = deletePage;

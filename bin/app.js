@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+// TODO: ETag should not get checked if URLs begin with '/admin/'
 "use strict";
 
 var http = require("http")

@@ -81,12 +81,17 @@ function renderView2(req, res, pageobj, finalarray, mappings) {
                          .digest("hex"))
                          .toString();
 
-  res.writeHead(200, {'Content-Type': 'text/html',
-                      'ETag': app.etags[req.url],
-                      'Cache-Control': "max-age=1000000"
-                     });
-
-  res.end(hypertext);
+  if (res.statusCode === 404) {
+    res.setHeader('Content-Type', 'text/html');
+    res.setHeader('etag', app.etags[req.url]);
+    res.end(hypertext);
+  } else {
+    res.writeHead(200, { 'Content-Type': 'text/html',
+                         'ETag': app.etags[req.url],
+                         'Cache-Control': "max-age=1000000"
+                       });
+    res.end(hypertext);
+  }
 }
 
 module.exports.renderView = renderView;
