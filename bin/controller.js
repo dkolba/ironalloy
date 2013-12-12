@@ -12,14 +12,14 @@ var app = require("./app")
 function showIndex () {
   var req = this.req
     , res = this.res;
-  models.getPageObj(req, res, 'index', mappings.base, views.renderView2);
+  models.getPageObj(req, res, 'index', mappings.base, views.renderView);
 }
 
 // Fetch page via pagename from redis and render template
 function showPage(pagename) {
   var req = this.req
     , res = this.res;
-  models.getPageObj(req, res, pagename, mappings.base, views.renderView2);
+  models.getPageObj(req, res, pagename, mappings.base, views.renderView);
 }
 
 function logout () {
@@ -40,14 +40,14 @@ function showAdmin() {
    res.redirect("/login", 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminIndex', null, mappings.base, views.renderView2);
+    models.getAdminObj(req, res, 'adminIndex', null, mappings.base, views.renderView);
   }
 }
 
 function showLogin() {
   var req = this.req
     , res = this.res;
-  models.getAdminObj(req, res, 'adminLogin', null, mappings.base, views.renderView2);
+  models.getAdminObj(req, res, 'adminLogin', null, mappings.base, views.renderView);
 }
 
 // Send formdata to redis and test whether username and password are valid
@@ -78,7 +78,7 @@ function showPasswd() {
     res.redirect("/login", 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminPasswd', null, mappings.base, views.renderView2);
+    models.getAdminObj(req, res, 'adminPasswd', null, mappings.base, views.renderView);
   }
 }
 
@@ -114,7 +114,7 @@ function showCreate() {
    res.redirect("/login", 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminCreate', null, mappings.base, views.renderView2);
+    models.getAdminObj(req, res, 'adminCreate', null, mappings.base, views.renderView);
   }
 }
 
@@ -126,7 +126,7 @@ function updateCreate(pagename) {
    res.redirect("/login", 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminCreate', pagename, mappings.base, views.renderView2);
+    models.getAdminObj(req, res, 'adminCreate', pagename, mappings.base, views.renderView);
   }
 }
 
@@ -138,7 +138,7 @@ function showUpdate() {
    res.redirect("/login", 301);
   }
   else {
-    models.getAdminArray(req, res, 'adminList', null, mappings.base, views.renderView2);
+    models.getAdminArray(req, res, 'adminList', null, mappings.base, views.renderView);
   }
 }
 
@@ -180,7 +180,7 @@ function show404(err, req, res) {
   }
 
   res.statusCode = 404;
-  models.getAdminObj(req, res, '404', null, mappings.base, views.renderView2);
+  models.getAdminObj(req, res, '404', null, mappings.base, views.renderView);
 }
 
 module.exports.deletePage = deletePage;

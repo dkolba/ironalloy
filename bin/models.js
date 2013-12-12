@@ -4,33 +4,6 @@ var app = require("./app")
   , controller = require("./controller")
   , blueprints = require("./blueprints");
 
-function getRedisHash(req, res, blueprint, pagename) {
-  app.redisClient.hgetall("page:" + pagename,
-    function(err, redisdata) {
-      if(err) throw err;
-      if (redisdata !== null) {
-        // console.log("redisdata=" + redisdata);
-        views.renderView(req, res, blueprint, redisdata);
-      } else {
-        controller.show404(null, req, res);
-      }
-    });
-}
-
-function getRedisSortedSet(req, res, blueprint) {
-  app.redisClient.zrange("allpages", 0 ,-1 ,
-    function(err, redisdata) {
-      if(err) throw err;
-      var pagescollection = [];
-      for (var i = 0; i < redisdata.length; i++) {
-        pagescollection.push({"pagescollection": redisdata[i]});
-      }
-      // console.log(pagescollection);
-      views.renderView(req, res, blueprint, pagescollection);
-  });
-}
-
-
 // This fetches data from redis and builds an object and array which can be used
 // by dishwasher.
 function getPageObj (req, res, pagename, mappings, callback) {
@@ -208,8 +181,6 @@ function updatePageItems (req, res) {
   });
 }
 
-module.exports.getRedisHash = getRedisHash;
-module.exports.getRedisSortedSet = getRedisSortedSet;
 module.exports.getPageObj = getPageObj;
 module.exports.getAdminObj = getAdminObj;
 module.exports.getAdminArray = getAdminArray;
