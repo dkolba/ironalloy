@@ -41,12 +41,15 @@ function getPageObj (req, res, pagename, mappings, callback) {
 
   // Fetch the singleset which belongs to pagename key from redis
   function getPageSingleArray(err, hash) {
-    pageobj = hash;
-    pageobj.pagesingleset = [];
-    pageobj.pagemultiset = [];
-    app.redisClient.smembers('page:' + pagename + ':singleset', resolveSingleArray);
+    if (hash) {
+      pageobj = hash;
+      pageobj.pagesingleset = [];
+      pageobj.pagemultiset = [];
+      app.redisClient.smembers('page:' + pagename + ':singleset', resolveSingleArray);
+    } else {
+      controller.show404(null, req, res);
+    }
   }
-
   // Fetch each object from singleset from redis
   function resolveSingleArray (err, redisset) {
     if(redisset.length){

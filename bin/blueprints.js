@@ -3,7 +3,7 @@ var blueprints = {
   adminIndex: {
     pageobject: {
       title: 'Admin Page',
-      description: 'I am the main admin page',
+      desc: 'I am the main admin page',
       mastertemplate: 'adminbasis',
       pagesingleset: ['adminWelcome'],
       pagemultiset: []
@@ -19,7 +19,7 @@ var blueprints = {
   adminLogin: {
     pageobject: {
       title: 'Admin Login',
-      description: 'I am the admin login page',
+      desc: 'I am the admin login page',
       mastertemplate: 'adminbasis',
       pagesingleset: ['adminLoginForm'],
       pagemultiset: []
@@ -35,7 +35,7 @@ var blueprints = {
   adminPasswd: {
     pageobject: {
       title: 'Change admin password',
-      description: 'Change me, I am weak',
+      desc: 'Change me, I am weak',
       mastertemplate: 'adminbasis',
       pagesingleset: ['adminPasswdForm'],
       pagemultiset: []
@@ -51,7 +51,7 @@ var blueprints = {
   adminCreate: {
     pageobject: {
       title: 'Create new page',
-      description: 'Create new page',
+      desc: 'Create new page',
       mastertemplate: 'adminbasis',
       pagesingleset: ['adminCreateForm'],
       pagemultiset: []
@@ -67,7 +67,7 @@ var blueprints = {
   adminList: {
     pageobject: {
       title: 'List all available pages',
-      description: 'Existing pages',
+      desc: 'Existing pages',
       mastertemplate: 'adminbasis',
       pagesingleset: ['allpagesframe'],
       pagemultiset: ['allpages']
@@ -78,7 +78,23 @@ var blueprints = {
       collection:'none'
     },
     adminListTable: {
-      collection:'allpages',
+      collection:'allpages'
+    }
+  },
+
+  404: {
+    pageobject: {
+      title: '404 Page',
+      desc: 'This is not the page you are looking for',
+      mastertemplate: 'frontpage',
+      pagesingleset: ['404message'],
+      pagemultiset: []
+    },
+    iamgone: {
+      partial: '404',
+      destination: 'pagecontent',
+      greeting: 'ahoi',
+      collection:'none'
     }
   }
 };
@@ -88,5 +104,6 @@ blueprints.adminLogin.finalarray = [blueprints.adminLogin.adminLoginForm];
 blueprints.adminPasswd.finalarray = [blueprints.adminPasswd.adminPasswdForm];
 blueprints.adminCreate.finalarray = [blueprints.adminCreate.adminCreateForm];
 blueprints.adminList.finalarray = [blueprints.adminList.adminListFrame];
+blueprints[404].finalarray = [blueprints[404].iamgone];
 
 module.exports = blueprints;

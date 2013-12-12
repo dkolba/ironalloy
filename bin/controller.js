@@ -188,22 +188,17 @@ function deletePage(pagename) {
 function show404(err, req, res) {
     //Check whether show404 was called directly via director or another function
     //and adjust req/res 
-    if (res) {
-      var res = res
-        , req = req;
-    }
-    else {
-      var res = this.res
-        , req = this.req 
-    }
+  if (res) {
+    var res = res
+      , req = req;
+  }
+  else {
+    var res = this.res
+      , req = this.req;
+  }
 
-    // var blueprint = ["basis", { partial: '404',
-    //                    attribute: 'id',
-    //                    destination: 'pagecontent'
-    //                  }];
-    res.statusCode = 404;
-    // views.renderView(req, res, blueprint);
-    models.getPageObj(req, res, 'index', mappings.base, views.renderView2);
+  res.statusCode = 404;
+  models.getAdminObj(req, res, '404', null, mappings.base, views.renderView2);
 }
 
 module.exports.deletePage = deletePage;
