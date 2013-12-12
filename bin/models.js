@@ -177,8 +177,15 @@ function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
   });
 }
 
+function setPassword (req, res, hash) {
+  app.redisClient.set("root", hash, function(err) {
+    res.redirect("/admin", 301);
+  });
+}
+
 module.exports.getRedisHash = getRedisHash;
 module.exports.getRedisSortedSet = getRedisSortedSet;
 module.exports.getPageObj = getPageObj;
 module.exports.getAdminObj = getAdminObj;
 module.exports.getAdminArray = getAdminArray;
+module.exports.setPassword = setPassword;

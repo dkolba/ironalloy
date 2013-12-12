@@ -59,6 +59,7 @@ function postLogin () {
     , res = this.res;
 
   var hash = (crypto.createHmac('sha1', key).update(formdata.password).digest('hex')).toString();
+  // One day this should be handled by a model function.
   app.redisClient.get("root",
     function(err, password) {
       if (password && hash === password &&
@@ -90,14 +91,16 @@ function postPasswd () {
 
   if (!req.session.legit) {
     res.redirect("/login", 301);
-  }
-  else {
+  } else {
     if (formdata.password === formdata.passwordrepeat){
-      var hash = (crypto.createHmac('sha1', key).update(formdata.password).digest('hex')).toString();
-      app.redisClient.set("root", hash,
-        function(err) {
-          res.redirect("/admin", 301);
-        });
+
+      var hash = (crypto
+                    .createHmac('sha1', key)
+                    .update(formdata.password)
+                    .digest('hex'))
+                    .toString();
+
+      models.setPassword(req, res, hash);
     }
     else {
       res.redirect("/admin/passwd", 301);
@@ -154,7 +157,7 @@ function postUpdate() {
     app.redisClient.hmset("page:" + formdata.pagename,
         {"pagetitle": formdata.pagetitle, "pagecontent": formdata.pagecontent},
       function(err) {
-        if (err) {console.log(err)};
+        if (err) {console.log(err);}
         res.redirect("/admin/update", 301);
         console.log('yop');
       });
