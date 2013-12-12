@@ -1,7 +1,5 @@
 // TODO: Globally replace req/res with this.req/this.res and remove var statements
 // TODO: Make postLogin() secure by not hashing immediately
-// TODO: Delete page:multiset and page:singleset in deletePage() 
-// TODO: Move database parts of postLogin() into models.js
 
 "use strict";
 var app = require("./app")
@@ -147,24 +145,12 @@ function showUpdate() {
 // Send formdata to redis
 function postUpdate() {
   var req = this.req
-    , formdata = req.body
     , res = this.res;
   if (!req.session.legit) {
    res.redirect("/login", 301);
   }
   else {
-    console.log(formdata.pagetitle);
-    app.redisClient.hmset("page:" + formdata.pagename,
-        {"pagetitle": formdata.pagetitle, "pagecontent": formdata.pagecontent},
-      function(err) {
-        if (err) {console.log(err);}
-        res.redirect("/admin/update", 301);
-        console.log('yop');
-      });
-    app.redisClient.zadd(["allpages", 0, formdata.pagename],
-      function(err, redisdata) {
-        console.log(redisdata);
-      });
+    models.updatePageItems(req, res);
   }
 }
 
@@ -173,17 +159,10 @@ function deletePage(pagename) {
   var req = this.req
     , res = this.res;
   if (!req.session.legit) {
-   res.redirect("/login", 301);
+    res.redirect("/login", 301);
   }
   else {
-    app.redisClient.hdel("page:" + pagename,
-      function(err) {
-        res.redirect("/admin/update", 301);
-      });
-    app.redisClient.zrem(["allpages", pagename],
-      function(err, redisdata) {
-        console.log(redisdata);
-      });
+    models.removePageItems(req, res, pagename);
   }
 }
 

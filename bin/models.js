@@ -183,9 +183,36 @@ function setPassword (req, res, hash) {
   });
 }
 
+function removePageItems(req, res, pagename) {
+  var multi = app.redisClient.multi();
+  multi.del('page:' + pagename);
+  multi.del('page:' + pagename + ':singleset');
+  multi.del('page:' + pagename + ':multiset');
+  multi.zrem(['allpages', pagename]);
+  multi.exec(function (err) {
+    res.redirect("/admin/update", 301);
+  });
+}
+
+function updatePageItems (req, res) {
+  var formdata = req.body
+    , multi = app.redisClient.multi();
+  multi.hmset('page:' + formdata.pagename, {
+      "pagetitle": formdata.pagetitle,
+      "pagecontent": formdata.pagecontent,
+      "desc": formdata.desc
+    });
+  multi.zadd(['allpages', 0, formdata.pagename]);
+  multi.exec(function (err) {
+    res.redirect("/admin/update", 301);
+  });
+}
+
 module.exports.getRedisHash = getRedisHash;
 module.exports.getRedisSortedSet = getRedisSortedSet;
 module.exports.getPageObj = getPageObj;
 module.exports.getAdminObj = getAdminObj;
 module.exports.getAdminArray = getAdminArray;
 module.exports.setPassword = setPassword;
+module.exports.removePageItems = removePageItems;
+module.exports.updatePageItems = updatePageItems;
