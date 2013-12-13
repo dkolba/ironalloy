@@ -97,7 +97,8 @@ function getAdminObj(req, res, blueprint, pagename, mappings, callback) {
   // and pageobject from redis and inject into finalarray.
   function modifyFinalarray(err, hash) {
     var retconned = {}
-      , finalarray = [];
+      , finalarray = []
+      , hash = hash || '';
 
     // Delete keys of which we know we want to replace them (just in case...).
     delete hash.destination;
