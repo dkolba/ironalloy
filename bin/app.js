@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// TODO: ETag should not get checked if URLs begin with '/admin/'
 "use strict";
 
 var http = require("http")
@@ -35,7 +34,10 @@ app.use(flatiron.plugins.http, {
 var etags = {};
 
 function checkETag (req, res) {
-  if (etags[req.url] && req.headers['if-none-match'] === etags[req.url]) {
+  if(req.url.slice(0, 6)==="/admin") {
+    res.emit('next');
+  }
+  else if (etags[req.url] && req.headers['if-none-match'] === etags[req.url]) {
     res.statusCode = 304;
     res.end();
   }
@@ -45,9 +47,9 @@ function checkETag (req, res) {
 }
 
 function removePoweredBy(req, res) {
-    res.removeHeader('X-Powered-By');
-    res.emit('next');
-  };
+  res.removeHeader('X-Powered-By');
+  res.emit('next');
+}
 
 // Test whether the incoming request has a valid session and set
 // req.session.legit to true/false
