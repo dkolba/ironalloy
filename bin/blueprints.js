@@ -2,99 +2,99 @@ var blueprints = {
 
   adminIndex: {
     pageobject: {
-      title: 'Admin Page',
-      desc: 'I am the main admin page',
-      mastertemplate: 'adminbasis',
-      pagesingleset: ['adminWelcome'],
+      title: "Admin Page",
+      desc: "I am the main admin page",
+      mastertemplate: "adminbasis",
+      pagesingleset: ["adminWelcome"],
       pagemultiset: []
     },
     adminWelcome: {
-      partial: 'adminwelcome',
-      destination: 'admincontent',
-      greeting: 'ahoi',
-      collection:'none'
+      partial: "adminwelcome",
+      destination: "admincontent",
+      greeting: "ahoi",
+      collection:"none"
     }
   },
 
   adminLogin: {
     pageobject: {
-      title: 'Admin Login',
-      desc: 'I am the admin login page',
-      mastertemplate: 'adminbasis',
-      pagesingleset: ['adminLoginForm'],
+      title: "Admin Login",
+      desc: "I am the admin login page",
+      mastertemplate: "adminbasis",
+      pagesingleset: ["adminLoginForm"],
       pagemultiset: []
     },
     adminLoginForm : {
-      partial:'adminlogin',
-      destination:'admincontent',
-      greeting:'ahoi',
-      collection:'none'
+      partial:"adminlogin",
+      destination:"admincontent",
+      greeting:"ahoi",
+      collection:"none"
     }
   },
 
   adminPasswd: {
     pageobject: {
-      title: 'Change admin password',
-      desc: 'Change me, I am weak',
-      mastertemplate: 'adminbasis',
-      pagesingleset: ['adminPasswdForm'],
+      title: "Change admin password",
+      desc: "Change me, I am weak",
+      mastertemplate: "adminbasis",
+      pagesingleset: ["adminPasswdForm"],
       pagemultiset: []
     },
     adminPasswdForm: {
-      partial:'adminpasswd',
-      destination:'admincontent',
-      greeting:'ahoi',
-      collection:'none'
+      partial:"adminpasswd",
+      destination:"admincontent",
+      greeting:"ahoi",
+      collection:"none"
     }
   },
 
   adminCreate: {
     pageobject: {
-      title: 'Create new page',
-      desc: 'Create new page',
-      mastertemplate: 'adminbasis',
-      pagesingleset: ['adminCreateForm'],
+      title: "Create new page",
+      desc: "Create new page",
+      mastertemplate: "adminbasis",
+      pagesingleset: ["adminCreateForm"],
       pagemultiset: []
     },
     adminCreateForm: {
-      partial:'admincreate',
-      destination:'admincontent',
-      greeting:'ahoi',
-      collection:'none'
+      partial:"admincreate",
+      destination:"admincontent",
+      greeting:"ahoi",
+      collection:"none"
     }
   },
 
   adminList: {
     pageobject: {
-      title: 'List all available pages',
-      desc: 'Existing pages',
-      mastertemplate: 'adminbasis',
-      pagesingleset: ['allpagesframe'],
-      pagemultiset: ['allpages']
+      title: "List all available pages",
+      desc: "Existing pages",
+      mastertemplate: "adminbasis",
+      pagesingleset: ["allpagesframe"],
+      pagemultiset: ["allpages"]
     },
     adminListFrame: {
-      partial:'adminlistframe',
-      destination:'admincontent',
-      collection:'none'
+      partial:"adminlistframe",
+      destination:"admincontent",
+      collection:"none"
     },
     adminListTable: {
-      collection:'allpages'
+      collection:"allpages"
     }
   },
 
   404: {
     pageobject: {
-      title: '404 Page',
-      desc: 'This is not the page you are looking for',
-      mastertemplate: 'frontpage',
-      pagesingleset: ['404message'],
+      title: "404 Page",
+      desc: "This is not the page you are looking for",
+      mastertemplate: "frontpage",
+      pagesingleset: ["404message"],
       pagemultiset: []
     },
     iamgone: {
-      partial: '404',
-      destination: 'pagecontent',
-      greeting: 'ahoi',
-      collection:'none'
+      partial: "404",
+      destination: "pagecontent",
+      greeting: "ahoi",
+      collection:"none"
     }
   }
 };
@@ -107,3 +107,4 @@ blueprints.adminList.finalarray = [blueprints.adminList.adminListFrame];
 blueprints[404].finalarray = [blueprints[404].iamgone];
 
 module.exports = blueprints;
+

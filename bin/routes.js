@@ -1,43 +1,44 @@
-var controller = require("./controller");
+var controller = require('./controller');
 
 // Define routing table
 var routes = {
-  '/' : {
+  "/" : {
     get: controller.showIndex
   },
-  '/admin/?' : {
+  "/admin/?" : {
     get: controller.showAdmin,
-    '/create/?' : {
+    "/create/?" : {
       get: controller.showCreate
     },
-    '/delete/?' : {
+    "/delete/?" : {
       get: controller.show404,
-      '/:pagename/?' : {
+      "/:pagename/?" : {
         get: controller.deletePage
       }
     },
-    '/update/?' : {
+    "/update/?" : {
       get: controller.showUpdate,
       post: controller.postUpdate,
-      '/:pagename/?': {
+      "/:pagename/?": {
         get: controller.updateCreate
       }
     },
-   '/passwd/?' : {
+   "/passwd/?" : {
      get: controller.showPasswd,
      post: controller.postPasswd
    }
   },
-  '/login/?' : {
+  "/login/?" : {
     get: controller.showLogin,
     post: controller.postLogin
   },
-  '/logout/?' : {
+  "/logout/?" : {
     get: controller.logout
   },
-  '/:pagename/?' : {
+  "/:pagename/?" : {
     get: controller.showPage
   }
 };
 
 module.exports.routes = routes;
+

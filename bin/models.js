@@ -1,14 +1,15 @@
-"use strict";
-var app = require("./app")
-  , views = require("./views")
-  , controller = require("./controller")
-  , blueprints = require("./blueprints");
+'use strict';
+var app = require('./app')
+  , views = require('./views')
+  , controller = require('./controller')
+  , blueprints = require('./blueprints');
 
 // This fetches data from redis and builds an object and array which can be used
 // by dishwasher.
 function getPageObj (req, res, pagename, mappings, callback) {
   var pageobj, multiarray;
   var finalarray = [];
+
   // Fetch pagename from redis
   app.redisClient.hgetall('page:' + pagename, getPageSingleArray);
 
@@ -18,39 +19,48 @@ function getPageObj (req, res, pagename, mappings, callback) {
       pageobj = hash;
       pageobj.pagesingleset = [];
       pageobj.pagemultiset = [];
-      app.redisClient.smembers('page:' + pagename + ':singleset', resolveSingleArray);
-    } else {
+      app.redisClient.smembers('page:' + pagename + ':singleset',
+        resolveSingleArray);
+    }
+    else {
       controller.show404(null, req, res);
     }
   }
   // Fetch each object from singleset from redis
   function resolveSingleArray (err, redisset) {
     if(redisset.length){
-      pageobj.pagesingleset = redisset;
       var multi = app.redisClient.multi();
+
+      pageobj.pagesingleset = redisset;
+
       for (var i = 0; i < redisset.length; i++) {
         multi.hgetall('page:' + redisset[i]);
       }
       multi.exec(function (err, array) {
         var tempobj = {collname:'none'};
 
-        // Add "collection" key and push object into finalarray
+        // Add 'collection' key and push object into finalarray
         array.map(injectObjectCollection, tempobj);
       });
     }
+
     // Fetch the multiset which belongs to pagename key from redis
-    app.redisClient.smembers('page:' + pagename + ':multiset', getPageMultiArray);
+    app.redisClient.smembers('page:' + pagename + ':multiset',
+      getPageMultiArray);
   }
 
   // Fetch each
   function getPageMultiArray (err, redisset) {
     if(redisset.length) {
       var multi = app.redisClient.multi();
+
       pageobj.pagemultiset = redisset;
+
       // Fetch each collection referenced in pagemultiset
       for (var i = 0; i < redisset.length; i++) {
         multi.smembers('collection:' + redisset[i]);
       }
+
       // Now we have an array of arrays, each one represents a collection
       multi.exec(function (err, multiarray) {
         multiarray.forEach(function (key, index) {
@@ -65,8 +75,9 @@ function getPageObj (req, res, pagename, mappings, callback) {
 
   // Fetches the pageobjects referenced in each array and pushes to finalarray
   function resolveMultiArray (redisset, index, multiarray) {
-    var arrayname = pageobj.pagemultiset[index];
-    var multi = app.redisClient.multi();
+    var arrayname = pageobj.pagemultiset[index]
+      ,  multi = app.redisClient.multi();
+
     for (var i = 0; i < redisset.length; i++) {
       multi.hgetall('page:' + redisset[i]);
     }
@@ -106,26 +117,32 @@ function getAdminObj(req, res, blueprint, pagename, mappings, callback) {
     delete hash.collection;
 
     // Clone finalarray blueprint object and pageobject into a new object. 
-    for (var key1 in hash) {retconned[key1] = hash[key1];}
-    for (var key2 in bp.finalarray[0]) {retconned[key2] = bp.finalarray[0][key2];}
+    for (var key1 in hash) {
+      retconned[key1] = hash[key1];
+    }
+    for (var key2 in bp.finalarray[0]) {
+      retconned[key2] = bp.finalarray[0][key2];
+    }
 
     retconned.pagename = pagename;
 
     finalarray.push(retconned);
+
     callback(req, res, bp.pageobject, finalarray, mappings);
   }
 
   // Check if we are dealing with existing data and act accordingly.
   if (pagename) {
     app.redisClient.hgetall('page:' + pagename, modifyFinalarray);
-  } else {
+  }
+  else {
     callback(req, res, bp.pageobject, bp.finalarray, mappings);
   }
 }
 
 function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
-  var bp = blueprints[blueprint];
-  var finalarray  = [];
+  var bp = blueprints[blueprint]
+    , finalarray  = [];
 
   // Deep copy of array of objects bp.finalarray
   for (var i = 0; i < bp.finalarray.length; i++) {
@@ -136,7 +153,7 @@ function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
   }
 
   // Get sorted set of all existing pages
-  app.redisClient.zrange("allpages", 0 ,-1 ,
+  app.redisClient.zrange('allpages', 0 ,-1 ,
     function(err, allpagesarray) {
       if(err) throw err;
 
@@ -147,38 +164,41 @@ function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
         for (var key in bp.adminListTable) {tmp[key] = bp.adminListTable[key];}
         finalarray.push(tmp);
       });
+
       callback(req, res, bp.pageobject, finalarray, mappings);
   });
 }
 
 function setPassword (req, res, hash) {
-  app.redisClient.set("root", hash, function(err) {
-    res.redirect("/admin", 301);
+  app.redisClient.set('root', hash, function(err) {
+    res.redirect('/admin', 301);
   });
 }
 
 function removePageItems(req, res, pagename) {
   var multi = app.redisClient.multi();
+
   multi.del('page:' + pagename);
   multi.del('page:' + pagename + ':singleset');
   multi.del('page:' + pagename + ':multiset');
   multi.zrem(['allpages', pagename]);
   multi.exec(function (err) {
-    res.redirect("/admin/update", 301);
+    res.redirect('/admin/update', 301);
   });
 }
 
 function updatePageItems (req, res) {
   var formdata = req.body
     , multi = app.redisClient.multi();
+
   multi.hmset('page:' + formdata.pagename, {
-      "pagetitle": formdata.pagetitle,
-      "pagecontent": formdata.pagecontent,
-      "desc": formdata.desc
-    });
+    "pagetitle": formdata.pagetitle,
+    "pagecontent": formdata.pagecontent,
+    "desc": formdata.desc
+  });
   multi.zadd(['allpages', 0, formdata.pagename]);
   multi.exec(function (err) {
-    res.redirect("/admin/update", 301);
+    res.redirect('/admin/update', 301);
   });
 }
 
@@ -188,3 +208,4 @@ module.exports.getAdminArray = getAdminArray;
 module.exports.setPassword = setPassword;
 module.exports.removePageItems = removePageItems;
 module.exports.updatePageItems = updatePageItems;
+

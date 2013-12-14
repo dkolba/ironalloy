@@ -1,19 +1,20 @@
 #!/usr/bin/env node
-"use strict";
+// TODO: Replace all config strings in /bin and put them in /bin/config.js
+'use strict';
 
-var http = require("http")
-  , flatiron = require("flatiron")
-  , director = require("director")
-  , union = require("union")
-  , redis = require("redis")
+var http = require('http')
+  , flatiron = require('flatiron')
+  , director = require('director')
+  , union = require('union')
+  , redis = require('redis')
   , redisClient = redis.createClient(process.env.redisport, process.env.host)
   , app = flatiron.app
   , winston = require('winston')
   , redsess = require('redsess')
   , cookies = require('cookies')
   , keygrip = require('keygrip')
-  , routes = require("./routes")
-  , controller = require("./controller");
+  , routes = require('./routes')
+  , controller = require('./controller');
 
 var logger = new (winston.Logger)({
       transports: [
@@ -21,6 +22,8 @@ var logger = new (winston.Logger)({
         new (winston.transports.File)({ filename: 'somefile.log' })
       ]
     });
+
+var etags = {};
 
 // Connect to redis db
 redisClient.auth(process.env.redissecret);
@@ -31,10 +34,8 @@ app.use(flatiron.plugins.http, {
   before: [removePoweredBy, redSession, checkETag]
 });
 
-var etags = {};
-
 function checkETag (req, res) {
-  if(req.url.slice(0, 6)==="/admin") {
+  if(req.url.slice(0, 6)==='/admin') {
     res.emit('next');
   }
   else if (etags[req.url] && req.headers['if-none-match'] === etags[req.url]) {
@@ -55,10 +56,10 @@ function removePoweredBy(req, res) {
 // req.session.legit to true/false
 function redSession (req, res) {
   var session = new redsess(req, res, {
-  cookieName: 's',
-  expire: 400, // default = 2 weeks
-  client: redisClient, // defaults to RedSess.client
-  keys: [ "this is a string key" ] // will be made into a keygrip obj
+    cookieName: "s",
+    expire: 400, // default = 2 weeks
+    client: redisClient, // defaults to RedSess.client
+    keys: [ "this is a string key" ] // will be made into a keygrip obj
   });
   req.session = session;
   res.session = session;
@@ -78,8 +79,8 @@ function redSession (req, res) {
 
 // Use st as file server
 app.use(flatiron.plugins.static, {
-  dir : __dirname + '/../public',
-  url : 'public/'
+  dir : __dirname + "/../public",
+  url : "public/"
 });
 
 // Inject routing table
@@ -90,3 +91,4 @@ console.log('union with director running on 8080');
 module.exports.redisClient = redisClient;
 module.exports.logger = logger;
 module.exports.etags = etags;
+

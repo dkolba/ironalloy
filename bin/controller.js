@@ -1,12 +1,12 @@
 // TODO: Globally replace req/res with this.req/this.res and remove var statements
 // TODO: Make postLogin() secure by not hashing immediately
 
-"use strict";
-var app = require("./app")
-  , views = require("./views")
-  , models = require("./models")
-  , mappings = require("./mappings")
-  , crypto = require("crypto")
+'use strict';
+var app = require('./app')
+  , views = require('./views')
+  , models = require('./models')
+  , mappings = require('./mappings')
+  , crypto = require('crypto')
   , key = 'abcdeg';
 
 function showIndex () {
@@ -25,9 +25,9 @@ function showPage(pagename) {
 function logout () {
   var req = this.req
     , res = this.res;
-  req.session.del("auth", function(err) {
+  req.session.del('auth', function(err) {
     if(err) throw err;
-    res.redirect("/", 301);
+    res.redirect('/', 301);
   });
 }
 
@@ -37,17 +37,19 @@ function showAdmin() {
     , res = this.res;
 
   if (!req.session.legit) {
-   res.redirect("/login", 301);
+   res.redirect('/login', 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminIndex', null, mappings.base, views.renderView);
+    models.getAdminObj(req, res, 'adminIndex', null, mappings.base,
+      views.renderView);
   }
 }
 
 function showLogin() {
   var req = this.req
     , res = this.res;
-  models.getAdminObj(req, res, 'adminLogin', null, mappings.base, views.renderView);
+  models.getAdminObj(req, res, 'adminLogin', null, mappings.base,
+    views.renderView);
 }
 
 // Send formdata to redis and test whether username and password are valid
@@ -56,29 +58,34 @@ function postLogin () {
     , formdata = req.body
     , res = this.res;
 
-  var hash = (crypto.createHmac('sha1', key).update(formdata.password).digest('hex')).toString();
+  var hash = (crypto
+    .createHmac('sha1', key)
+    .update(formdata.password)
+    .digest('hex'))
+    .toString();
+
   // One day this should be handled by a model function.
-  app.redisClient.get("root",
-    function(err, password) {
-      if (password && hash === password &&
-      formdata.username === "root"){
-        req.session.set('auth', formdata.username);
-        res.redirect("/admin", 301);
-      }
-      else {
-        res.redirect("/login", 301);
-      }
-    });
+  app.redisClient.get('root', function(err, password) {
+    if (password && hash === password && formdata.username === 'root'){
+      req.session.set('auth', formdata.username);
+      res.redirect('/admin', 301);
+    }
+    else {
+      res.redirect('/login', 301);
+    }
+  });
 }
 
 function showPasswd() {
   var req = this.req
     , res = this.res;
+
   if (!req.session.legit) {
-    res.redirect("/login", 301);
+    res.redirect('/login', 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminPasswd', null, mappings.base, views.renderView);
+    models.getAdminObj(req, res, 'adminPasswd', null, mappings.base,
+      views.renderView);
   }
 }
 
@@ -88,20 +95,20 @@ function postPasswd () {
     , formdata = req.body;
 
   if (!req.session.legit) {
-    res.redirect("/login", 301);
-  } else {
+    res.redirect('/login', 301);
+  }
+  else {
     if (formdata.password === formdata.passwordrepeat){
-
       var hash = (crypto
-                    .createHmac('sha1', key)
-                    .update(formdata.password)
-                    .digest('hex'))
-                    .toString();
+        .createHmac('sha1', key)
+        .update(formdata.password)
+        .digest('hex'))
+        .toString();
 
       models.setPassword(req, res, hash);
     }
     else {
-      res.redirect("/admin/passwd", 301);
+      res.redirect('/admin/passwd', 301);
     }
   }
 }
@@ -110,11 +117,13 @@ function postPasswd () {
 function showCreate() {
   var req = this.req
     , res = this.res;
+
   if (!req.session.legit) {
-   res.redirect("/login", 301);
+    res.redirect('/login', 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminCreate', null, mappings.base, views.renderView);
+    models.getAdminObj(req, res, 'adminCreate', null, mappings.base,
+      views.renderView);
   }
 }
 
@@ -122,11 +131,13 @@ function showCreate() {
 function updateCreate(pagename) {
   var req = this.req
     , res = this.res;
+
   if (!req.session.legit) {
-   res.redirect("/login", 301);
+    res.redirect('/login', 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminCreate', pagename, mappings.base, views.renderView);
+    models.getAdminObj(req, res, 'adminCreate', pagename, mappings.base,
+      views.renderView);
   }
 }
 
@@ -134,11 +145,13 @@ function updateCreate(pagename) {
 function showUpdate() {
   var req = this.req
     , res = this.res;
+
   if (!req.session.legit) {
-   res.redirect("/login", 301);
+    res.redirect('/login', 301);
   }
   else {
-    models.getAdminArray(req, res, 'adminList', null, mappings.base, views.renderView);
+    models.getAdminArray(req, res, 'adminList', null, mappings.base,
+      views.renderView);
   }
 }
 
@@ -146,8 +159,9 @@ function showUpdate() {
 function postUpdate() {
   var req = this.req
     , res = this.res;
+
   if (!req.session.legit) {
-   res.redirect("/login", 301);
+    res.redirect('/login', 301);
   }
   else {
     models.updatePageItems(req, res);
@@ -158,8 +172,9 @@ function postUpdate() {
 function deletePage(pagename) {
   var req = this.req
     , res = this.res;
+
   if (!req.session.legit) {
-    res.redirect("/login", 301);
+    res.redirect('/login', 301);
   }
   else {
     models.removePageItems(req, res, pagename);
@@ -197,3 +212,4 @@ module.exports.showPage = showPage;
 module.exports.showPasswd = showPasswd;
 module.exports.showUpdate = showUpdate;
 module.exports.updateCreate = updateCreate;
+
