@@ -58,11 +58,10 @@ function postLogin () {
     , formdata = req.body
     , res = this.res;
 
-  var hash = (crypto
-    .createHmac('sha1', key)
-    .update(formdata.password)
-    .digest('hex'))
-    .toString();
+  var hash = (crypto.createHmac('sha1', key)
+                    .update(formdata.password)
+                    .digest('hex'))
+                    .toString();
 
   // One day this should be handled by a model function.
   app.redisClient.get('root', function(err, password) {
@@ -99,11 +98,10 @@ function postPasswd () {
   }
   else {
     if (formdata.password === formdata.passwordrepeat){
-      var hash = (crypto
-        .createHmac('sha1', key)
-        .update(formdata.password)
-        .digest('hex'))
-        .toString();
+      var hash = (crypto.createHmac('sha1', key)
+                        .update(formdata.password)
+                        .digest('hex'))
+                        .toString();
 
       models.setPassword(req, res, hash);
     }

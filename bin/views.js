@@ -15,11 +15,10 @@ function renderView(req, res, pageobj, finalarray, mappings) {
   var hypertext = dishwasher.rinse(pageobj, finalarray, mappings.pagemap,
     mappings.singlemap, mappings.multimap);
 
-  app.etags[req.url] = (crypto
-    .createHash('md5')
-    .update(hypertext, 'utf8')
-    .digest('hex'))
-    .toString();
+  app.etags[req.url] = (crypto.createHash('md5')
+                              .update(hypertext, 'utf8')
+                              .digest('hex'))
+                              .toString();
 
   if (res.statusCode === 404) {
     res.setHeader('Content-Type', 'text/html');
