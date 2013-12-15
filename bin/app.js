@@ -4,26 +4,19 @@
 
 var http = require('http')
   , flatiron = require('flatiron')
-  , director = require('director')
-  , union = require('union')
   , redis = require('redis')
   , redisClient = redis.createClient(process.env.redisport, process.env.host)
   , app = flatiron.app
-  , winston = require('winston')
   , redsess = require('redsess')
   , cookies = require('cookies')
   , keygrip = require('keygrip')
   , routes = require('./routes')
   , controller = require('./controller');
 
-var logger = new (winston.Logger)({
-      transports: [
-        new (winston.transports.Console)(),
-        new (winston.transports.File)({ filename: 'somefile.log' })
-      ]
-    });
-
 var etags = {};
+
+// Load nconf configuration file
+app.config.use('file', {file: __dirname + "/../config.json"});
 
 // Connect to redis db
 redisClient.auth(process.env.redissecret);
@@ -85,10 +78,11 @@ app.use(flatiron.plugins.static, {
 
 // Inject routing table
 app.router.mount(routes);
-app.start(8080);
-console.log('union with director running on 8080');
+app.start(8080, function(err) {
+  app.log.info('union with director running on 8080');
+});
 
 module.exports.redisClient = redisClient;
-module.exports.logger = logger;
+module.exports.app = app;
 module.exports.etags = etags;
 

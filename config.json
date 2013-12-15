@@ -1,0 +1,12 @@
+{
+  "log":
+    {
+      "console": {
+        "level": "silly",
+        "colorize": "true"
+      },
+      "file": {
+        "filename": "logs/ironalloy.log"
+      }
+    }
+}

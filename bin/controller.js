@@ -2,7 +2,7 @@
 // TODO: Make postLogin() secure by not hashing immediately
 
 'use strict';
-var app = require('./app')
+var services = require('./app')
   , views = require('./views')
   , models = require('./models')
   , mappings = require('./mappings')
@@ -64,7 +64,7 @@ function postLogin () {
                     .toString();
 
   // One day this should be handled by a model function.
-  app.redisClient.get('root', function(err, password) {
+  services.redisClient.get('root', function(err, password) {
     if (password && hash === password && formdata.username === 'root'){
       req.session.set('auth', formdata.username);
       res.redirect('/admin', 301);

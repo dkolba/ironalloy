@@ -1,5 +1,5 @@
 'use strict';
-var app = require('./app')
+var services = require('./app')
   , views = require('./views')
   , controller = require('./controller')
   , blueprints = require('./blueprints');
@@ -11,7 +11,7 @@ function getPageObj (req, res, pagename, mappings, callback) {
   var finalarray = [];
 
   // Fetch pagename from redis
-  app.redisClient.hgetall('page:' + pagename, getPageSingleArray);
+  services.redisClient.hgetall('page:' + pagename, getPageSingleArray);
 
   // Fetch the singleset which belongs to pagename key from redis
   function getPageSingleArray(err, hash) {
@@ -19,7 +19,7 @@ function getPageObj (req, res, pagename, mappings, callback) {
       pageobj = hash;
       pageobj.pagesingleset = [];
       pageobj.pagemultiset = [];
-      app.redisClient.smembers('page:' + pagename + ':singleset',
+      services.redisClient.smembers('page:' + pagename + ':singleset',
         resolveSingleArray);
     }
     else {
@@ -29,7 +29,7 @@ function getPageObj (req, res, pagename, mappings, callback) {
   // Fetch each object from singleset from redis
   function resolveSingleArray (err, redisset) {
     if(redisset.length){
-      var multi = app.redisClient.multi();
+      var multi = services.redisClient.multi();
 
       pageobj.pagesingleset = redisset;
 
@@ -45,14 +45,14 @@ function getPageObj (req, res, pagename, mappings, callback) {
     }
 
     // Fetch the multiset which belongs to pagename key from redis
-    app.redisClient.smembers('page:' + pagename + ':multiset',
+    services.redisClient.smembers('page:' + pagename + ':multiset',
       getPageMultiArray);
   }
 
   // Fetch each
   function getPageMultiArray (err, redisset) {
     if(redisset.length) {
-      var multi = app.redisClient.multi();
+      var multi = services.redisClient.multi();
 
       pageobj.pagemultiset = redisset;
 
@@ -76,7 +76,7 @@ function getPageObj (req, res, pagename, mappings, callback) {
   // Fetches the pageobjects referenced in each array and pushes to finalarray
   function resolveMultiArray (redisset, index, multiarray) {
     var arrayname = pageobj.pagemultiset[index]
-      ,  multi = app.redisClient.multi();
+      ,  multi = services.redisClient.multi();
 
     for (var i = 0; i < redisset.length; i++) {
       multi.hgetall('page:' + redisset[i]);
@@ -133,7 +133,7 @@ function getAdminObj(req, res, blueprint, pagename, mappings, callback) {
 
   // Check if we are dealing with existing data and act accordingly.
   if (pagename) {
-    app.redisClient.hgetall('page:' + pagename, modifyFinalarray);
+    services.redisClient.hgetall('page:' + pagename, modifyFinalarray);
   }
   else {
     callback(req, res, bp.pageobject, bp.finalarray, mappings);
@@ -153,7 +153,7 @@ function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
   }
 
   // Get sorted set of all existing pages
-  app.redisClient.zrange('allpages', 0 ,-1 ,
+  services.redisClient.zrange('allpages', 0 ,-1 ,
     function(err, allpagesarray) {
       if(err) throw err;
 
@@ -170,13 +170,13 @@ function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
 }
 
 function setPassword (req, res, hash) {
-  app.redisClient.set('root', hash, function(err) {
+  services.redisClient.set('root', hash, function(err) {
     res.redirect('/admin', 301);
   });
 }
 
 function removePageItems(req, res, pagename) {
-  var multi = app.redisClient.multi();
+  var multi = services.redisClient.multi();
 
   multi.del('page:' + pagename);
   multi.del('page:' + pagename + ':singleset');
@@ -189,7 +189,7 @@ function removePageItems(req, res, pagename) {
 
 function updatePageItems (req, res) {
   var formdata = req.body
-    , multi = app.redisClient.multi();
+    , multi = services.redisClient.multi();
 
   multi.hmset('page:' + formdata.pagename, {
     "pagetitle": formdata.pagetitle,
