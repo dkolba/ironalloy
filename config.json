@@ -2,10 +2,11 @@
   "log":
     {
       "console": {
-        "level": "silly",
+        "level": "info",
         "colorize": "true"
       },
       "file": {
+        "level": "error",
         "filename": "logs/ironalloy.log"
       }
     }
