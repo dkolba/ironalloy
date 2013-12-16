@@ -1,5 +1,5 @@
 'use strict';
-var services = require('./app')
+var services = require('./ironalloy')
   , views = require('./views')
   , controller = require('./controller')
   , blueprints = require('./blueprints');
