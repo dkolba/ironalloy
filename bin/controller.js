@@ -2,7 +2,7 @@
 // TODO: Make postLogin() secure by not hashing immediately
 
 'use strict';
-var services = require('./ironalloy')
+var services = require('./services')
   , views = require('./views')
   , models = require('./models')
   , mappings = require('./mappings')

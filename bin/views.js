@@ -6,7 +6,8 @@ var fs = require('fs')
   , services = require('./ironalloy')
   , crypto = require('crypto')
   , dishwasher = require('dishwasher')
-  , mappings = require('./mappings.js');
+  , mappings = require('./mappings')
+  , services = require('./services');
 
 // Load templates
 dishwasher.setFolder('../templates/', __dirname);
