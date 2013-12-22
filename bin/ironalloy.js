@@ -33,7 +33,5 @@ app.start(8080, function(err) {
   app.log.info('union with director running on 8080');
 });
 
-// module.exports.redisClient = redisClient;
 module.exports.app = app;
-// module.exports.etags = etags;
 

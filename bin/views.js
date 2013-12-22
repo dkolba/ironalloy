@@ -3,7 +3,6 @@
 
 var fs = require('fs')
   , plates = require('plates')
-  , services = require('./ironalloy')
   , crypto = require('crypto')
   , dishwasher = require('dishwasher')
   , mappings = require('./mappings')
