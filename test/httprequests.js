@@ -1,7 +1,7 @@
 var mocha = require('mocha')
   , chai = require('chai')
   , should = chai.should()
-  , app = require(__dirname + "/../bin/app")
+  , app = require(__dirname + "/../bin/ironalloy")
   , request = require('request');
 
 
