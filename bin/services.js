@@ -4,7 +4,8 @@ var redis = require('redis')
   , redisClient = redis.createClient(process.env.redisport, process.env.host)
   , redsess = require('redsess')
   , cookies = require('cookies')
-  , keygrip = require('keygrip');
+  , keygrip = require('keygrip')
+  , ironalloy = require('./ironalloy');
 
 var etags = {};
 
@@ -36,7 +37,7 @@ function redSession (req, res) {
     cookieName: "s",
     expire: 400, // default = 2 weeks
     client: redisClient, // defaults to RedSess.client
-    keys: [ "this is a string key" ] // will be made into a keygrip obj
+    keys: [ ironalloy.app.config.get('keygrip') ] // will be made into a keygrip obj
   });
   req.session = session;
   res.session = session;

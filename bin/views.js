@@ -6,7 +6,8 @@ var fs = require('fs')
   , crypto = require('crypto')
   , dishwasher = require('dishwasher')
   , mappings = require('./mappings')
-  , services = require('./services');
+  , services = require('./services')
+  , ironalloy = require('./ironalloy');
 
 // Load templates
 dishwasher.setFolder('../templates/', __dirname);
@@ -29,7 +30,7 @@ function renderView(req, res, pageobj, finalarray, mappings) {
     res.writeHead(200, {
       "Content-Type": "text/html",
       "ETag": services.etags[req.url],
-      "Cache-Control": "max-age=1000000"
+      "Cache-Control": ironalloy.app.config.get('cache_control')
     });
     res.end(hypertext);
   }
