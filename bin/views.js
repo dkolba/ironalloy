@@ -1,4 +1,3 @@
-// TODO: Cache-Control needs to get removed for /admin routes
 'use strict';
 
 var fs = require('fs')
@@ -6,8 +5,7 @@ var fs = require('fs')
   , crypto = require('crypto')
   , dishwasher = require('dishwasher')
   , mappings = require('./mappings')
-  , services = require('./services')
-  , ironalloy = require('./ironalloy');
+  , services = require('./services');
 
 // Load templates
 dishwasher.setFolder('../templates/', __dirname);
@@ -30,7 +28,7 @@ function renderView(req, res, pageobj, finalarray, mappings) {
     res.writeHead(200, {
       "Content-Type": "text/html",
       "ETag": services.etags[req.url],
-      "Cache-Control": ironalloy.app.config.get('cache_control')
+      "Cache-Control": services.cacheControl(req.url)
     });
     res.end(hypertext);
   }

@@ -55,9 +55,18 @@ function redSession (req, res) {
   });
 }
 
+function cacheControl (url) {
+  if(url.slice(0, 6)==='/admin') {
+    return "private, max-age=0, no-cache";
+  }
+  else {
+    return ironalloy.app.config.get('cache_control');
+  }
+}
 module.exports.redisClient = redisClient;
 module.exports.checkETag = checkETag;
 module.exports.etags = etags;
 module.exports.removePoweredBy = removePoweredBy;
 module.exports.redSession = redSession;
+module.exports.cacheControl = cacheControl;
 
