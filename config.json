@@ -13,5 +13,7 @@
   "static_dir": "/../public",
   "static_url": "public/",
   "keygrip": "whathappensinvegasstaysinvegas",
-  "cache_control": "max-age=1000000"
+  "cache_control": "max-age=1000000",
+  "cookie_name": "ironalloy",
+  "cookie_expire": "600"
 }

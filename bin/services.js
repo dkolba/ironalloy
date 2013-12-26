@@ -34,10 +34,10 @@ function removePoweredBy(req, res) {
 // req.session.legit to true/false
 function redSession (req, res) {
   var session = new redsess(req, res, {
-    cookieName: "s",
-    expire: 400, // default = 2 weeks
+    cookieName: ironalloy.app.config.get('cookie_name'),
+    expire: ironalloy.app.config.get('cookie_expire'),
     client: redisClient, // defaults to RedSess.client
-    keys: [ ironalloy.app.config.get('keygrip') ] // will be made into a keygrip obj
+    keys: [ ironalloy.app.config.get('keygrip') ] // this becomes a keygrip obj
   });
   req.session = session;
   res.session = session;
