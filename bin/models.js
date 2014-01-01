@@ -69,6 +69,7 @@ function getPageObj (req, res, pagename, mappings, callback) {
       });
     }
     else {
+        console.log(pageobj);
       callback(req, res, pageobj, finalarray, mappings);
     }
   }
@@ -140,6 +141,34 @@ function getAdminObj(req, res, blueprint, pagename, mappings, callback) {
   }
 }
 
+function getAdminFragments (req, res, blueprint, pagename, mappings,
+  callback) {
+    var bp = blueprints[blueprint];
+
+    services.redisClient.smembers('page:' + pagename + ':singleset',
+      insertFragments);
+
+    function insertFragments(err, redisset) {
+      if(err) throw err;
+
+      var retconned = {}
+      , finalarray = [];
+
+      // Copy keys/values from blueprint configuration object
+      for (var key in bp.finalarray[0]) {
+        retconned[key] = bp.finalarray[0][key];
+      }
+
+      retconned.pagename = pagename;
+      retconned.pagefragments = redisset.toString();
+      retconned.posturl = '/admin/update/' + pagename + '/fragments/';
+
+      finalarray.push(retconned);
+
+      callback(req, res, bp.pageobject, finalarray, mappings);
+    }
+}
+
 function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
   var bp = blueprints[blueprint]
     , finalarray  = [];
@@ -161,6 +190,7 @@ function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
       allpagesarray.forEach(function(element)  {
         var tmp = {};
         tmp.pagename = element;
+        tmp.adminurl = '/admin/update/' + element;
         for (var key in bp.adminListTable) {tmp[key] = bp.adminListTable[key];}
         finalarray.push(tmp);
       });
@@ -202,10 +232,25 @@ function updatePageItems (req, res) {
   });
 }
 
+function updateFragmentItems (req, res) {
+  var formdata = req.body
+    , multi = services.redisClient.multi();
+
+  var fragments = formdata.pagefragments.split(',');
+
+  multi.del('page:' + formdata.pagename + ':singleset')
+  multi.sadd('page:' + formdata.pagename + ':singleset', fragments)
+  multi.exec(function (err) {
+    res.redirect('/admin/update/' + formdata.pagename, 301);
+  });
+}
+
 module.exports.getPageObj = getPageObj;
 module.exports.getAdminObj = getAdminObj;
+module.exports.getAdminFragments = getAdminFragments;
 module.exports.getAdminArray = getAdminArray;
 module.exports.setPassword = setPassword;
 module.exports.removePageItems = removePageItems;
 module.exports.updatePageItems = updatePageItems;
+module.exports.updateFragmentItems = updateFragmentItems;
 

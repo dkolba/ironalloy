@@ -64,6 +64,22 @@ var blueprints = {
     }
   },
 
+  adminFragments: {
+    pageobject: {
+      title: "Show all Fragments of this page",
+      desc: "Show all Fragments of this page",
+      mastertemplate: "adminbasis",
+      pagesingleset: ["adminFragmentsForm"],
+      pagemultiset: []
+    },
+    adminFragmentsForm: {
+      partial:"adminfragments",
+      destination:"admincontent",
+      greeting:"ahoi",
+      collection:"none"
+    }
+  },
+
   adminList: {
     pageobject: {
       title: "List all available pages",
@@ -103,6 +119,7 @@ blueprints.adminIndex.finalarray = [blueprints.adminIndex.adminWelcome];
 blueprints.adminLogin.finalarray = [blueprints.adminLogin.adminLoginForm];
 blueprints.adminPasswd.finalarray = [blueprints.adminPasswd.adminPasswdForm];
 blueprints.adminCreate.finalarray = [blueprints.adminCreate.adminCreateForm];
+blueprints.adminFragments.finalarray = [blueprints.adminFragments.adminFragmentsForm];
 blueprints.adminList.finalarray = [blueprints.adminList.adminListFrame];
 blueprints[404].finalarray = [blueprints[404].iamgone];
 

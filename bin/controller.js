@@ -139,6 +139,33 @@ function updateCreate(pagename) {
   }
 }
 
+// Show fragments form of a certain page with old data
+function updateFragments(pagename) {
+  var req = this.req
+    , res = this.res;
+
+  if (!req.session.legit) {
+    res.redirect('/login', 301);
+  }
+  else {
+    models.getAdminFragments(req, res, 'adminFragments', pagename,
+      mappings.base, views.renderView);
+  }
+}
+
+// Send fragment changes to redis
+function postFragments () {
+  var req = this.req
+    , res = this.res;
+
+  if (!req.session.legit) {
+    res.redirect('/login', 301);
+  }
+  else {
+    models.updateFragmentItems(req, res);
+  }
+}
+
 // Show a list of all available pages
 function showUpdate() {
   var req = this.req
@@ -201,6 +228,7 @@ module.exports.logout = logout;
 module.exports.postLogin = postLogin;
 module.exports.postUpdate = postUpdate;
 module.exports.postPasswd = postPasswd;
+module.exports.postFragments = postFragments;
 module.exports.show404 = show404;
 module.exports.showAdmin = showAdmin;
 module.exports.showCreate = showCreate;
@@ -210,4 +238,5 @@ module.exports.showPage = showPage;
 module.exports.showPasswd = showPasswd;
 module.exports.showUpdate = showUpdate;
 module.exports.updateCreate = updateCreate;
+module.exports.updateFragments = updateFragments;
 

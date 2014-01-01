@@ -1,6 +1,6 @@
 {
   "name": "ironalloy",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "accosine <whatspoppin@accosine.com>",
   "description": "Flatiron + Redis",
   "repository": {
@@ -31,7 +31,7 @@
     "keygrip": "~0.2.2",
     "cookies": "~0.3.6",
     "winston": "~0.7.2",
-    "dishwasher": "~0.3.1"
+    "dishwasher": "~0.4.0"
   },
   "devDependencies": {
     "mocha": "1.3.0",

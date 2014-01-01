@@ -20,7 +20,11 @@ var routes = {
       get: controller.showUpdate,
       post: controller.postUpdate,
       "/:pagename/?": {
-        get: controller.updateCreate
+        get: controller.updateCreate,
+        "/fragments/?": {
+          get: controller.updateFragments,
+          post: controller.postFragments
+        }
       }
     },
    "/passwd/?" : {
