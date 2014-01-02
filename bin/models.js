@@ -69,7 +69,6 @@ function getPageObj (req, res, pagename, mappings, callback) {
       });
     }
     else {
-        console.log(pageobj);
       callback(req, res, pageobj, finalarray, mappings);
     }
   }
@@ -171,7 +170,17 @@ function getAdminFragments (req, res, blueprint, pagename, mappings,
 
 function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
   var bp = blueprints[blueprint]
-    , finalarray  = [];
+    , finalarray  = []
+    , pagepath = req.url.split('/')
+    , sortedset = '';
+
+  //Check if we need pages or collections and set variable
+  if(pagepath.indexOf('collections') > -1) {
+    sortedset = 'allcollections';
+  }
+  else {
+    sortedset = 'allpages';
+  }
 
   // Deep copy of array of objects bp.finalarray
   for (var i = 0; i < bp.finalarray.length; i++) {
@@ -182,15 +191,20 @@ function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
   }
 
   // Get sorted set of all existing pages
-  services.redisClient.zrange('allpages', 0 ,-1 ,
+  services.redisClient.zrange(sortedset, 0 ,-1 ,
     function(err, allpagesarray) {
       if(err) throw err;
 
       // Insert object for each page in allpagesarray
       allpagesarray.forEach(function(element)  {
         var tmp = {};
+        if(sortedset === 'allpages') {
+          tmp.adminurl = '/admin/update/' + element;
+        }
+        else {
+          tmp.adminurl = '/admin/update/collections/' + element;
+        }
         tmp.pagename = element;
-        tmp.adminurl = '/admin/update/' + element;
         for (var key in bp.adminListTable) {tmp[key] = bp.adminListTable[key];}
         finalarray.push(tmp);
       });

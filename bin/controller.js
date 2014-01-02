@@ -166,7 +166,7 @@ function postFragments () {
   }
 }
 
-// Show a list of all available pages
+// Show a list of all available pages/collections
 function showUpdate() {
   var req = this.req
     , res = this.res;

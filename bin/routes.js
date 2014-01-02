@@ -19,6 +19,9 @@ var routes = {
     "/update/?" : {
       get: controller.showUpdate,
       post: controller.postUpdate,
+      "/collections/?": {
+        get: controller.showUpdate,
+      },
       "/:pagename/?": {
         get: controller.updateCreate,
         "/fragments/?": {
