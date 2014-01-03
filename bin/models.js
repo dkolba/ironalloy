@@ -1,8 +1,8 @@
 'use strict';
 var services = require('./services')
-  , views = require('./views')
   , controller = require('./controller')
-  , blueprints = require('./blueprints');
+  , blueprints = require('./blueprints')
+  , ironalloy = require('./ironalloy');
 
 // This fetches data from redis and builds an object and array which can be used
 // by dishwasher.
@@ -140,14 +140,32 @@ function getAdminObj(req, res, blueprint, pagename, mappings, callback) {
   }
 }
 
-function getAdminFragments (req, res, blueprint, pagename, mappings,
+function getAdminComponents (req, res, blueprint, pagename, mappings,
   callback) {
-    var bp = blueprints[blueprint];
+    var bp = blueprints[blueprint]
+    , pagepath = req.url.split('/')
+    , adminurl;
 
-    services.redisClient.smembers('page:' + pagename + ':singleset',
-      insertFragments);
+    //Check if we need pages or collections and set variable
+    if(pagepath.indexOf('collection') > -1) {
+      adminurl = '/admin/update/collection/';
+      services.redisClient.smembers('collection:' + pagename, insertComponents);
+    }
+    else if(pagepath.indexOf('collections') > -1) {
+      adminurl = '/admin/update/' + pagename + '/collections/';
+      services.redisClient.smembers('page:' + pagename + ':multiset',
+        insertComponents);
+    }
+    else if(pagepath.indexOf('fragments') > -1) {
+      adminurl = '/admin/update/' + pagename + '/fragments/';
+      services.redisClient.smembers('page:' + pagename + ':singleset',
+        insertComponents);
+    }
+    else {
+      ironalloy.app.log.info('This should never happen');
+    }
 
-    function insertFragments(err, redisset) {
+    function insertComponents(err, redisset) {
       if(err) throw err;
 
       var retconned = {}
@@ -160,7 +178,7 @@ function getAdminFragments (req, res, blueprint, pagename, mappings,
 
       retconned.pagename = pagename;
       retconned.pagefragments = redisset.toString();
-      retconned.posturl = '/admin/update/' + pagename + '/fragments/';
+      retconned.posturl = adminurl;
 
       finalarray.push(retconned);
 
@@ -175,7 +193,7 @@ function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
     , sortedset = '';
 
   //Check if we need pages or collections and set variable
-  if(pagepath.indexOf('collections') > -1) {
+  if(pagepath.indexOf('collection') > -1) {
     sortedset = 'allcollections';
   }
   else {
@@ -202,7 +220,7 @@ function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
           tmp.adminurl = '/admin/update/' + element;
         }
         else {
-          tmp.adminurl = '/admin/update/collections/' + element;
+          tmp.adminurl = '/admin/update/collection/' + element;
         }
         tmp.pagename = element;
         for (var key in bp.adminListTable) {tmp[key] = bp.adminListTable[key];}
@@ -246,7 +264,7 @@ function updatePageItems (req, res) {
   });
 }
 
-function updateFragmentItems (req, res) {
+function updateComponentsItems (req, res) {
   var formdata = req.body
     , multi = services.redisClient.multi();
 
@@ -261,10 +279,10 @@ function updateFragmentItems (req, res) {
 
 module.exports.getPageObj = getPageObj;
 module.exports.getAdminObj = getAdminObj;
-module.exports.getAdminFragments = getAdminFragments;
+module.exports.getAdminComponents = getAdminComponents;
 module.exports.getAdminArray = getAdminArray;
 module.exports.setPassword = setPassword;
 module.exports.removePageItems = removePageItems;
 module.exports.updatePageItems = updatePageItems;
-module.exports.updateFragmentItems = updateFragmentItems;
+module.exports.updateComponentsItems = updateComponentsItems;
 

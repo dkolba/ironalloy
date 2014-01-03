@@ -19,14 +19,22 @@ var routes = {
     "/update/?" : {
       get: controller.showUpdate,
       post: controller.postUpdate,
-      "/collections/?": {
+      "/collection/?": {
         get: controller.showUpdate,
+        post: controller.postComponents,
+        "/:collectionname/?": {
+          get: controller.updateComponents,
+        }
       },
       "/:pagename/?": {
         get: controller.updateCreate,
         "/fragments/?": {
-          get: controller.updateFragments,
-          post: controller.postFragments
+          get: controller.updateComponents,
+          post: controller.postComponents
+        },
+        "/collections/?": {
+          get: controller.updateComponents,
+          post: controller.postComponents
         }
       }
     },
