@@ -1,3 +1,5 @@
+// TODO: Refactor test for collections/collection/fragments path into function
+// TODO: Replace all Redis sets with sorted sets
 'use strict';
 var services = require('./services')
   , controller = require('./controller')
@@ -264,16 +266,40 @@ function updatePageItems (req, res) {
   });
 }
 
-function updateComponentsItems (req, res) {
+function updateComponentItems (req, res) {
   var formdata = req.body
-    , multi = services.redisClient.multi();
+    , pagepath = req.url.split('/')
+    , adminurl
+    , pagename = formdata.pagename
+    , multi = services.redisClient.multi()
+    , affix
+    , suffix
+    , components = formdata.pagefragments.split(',');
 
-  var fragments = formdata.pagefragments.split(',');
+    // Check if we need pages or collections and set variable
+    if(pagepath.indexOf('collection') > -1) {
+      adminurl = '/admin/update/collection/';
+      affix = 'collection:';
+      suffix = '';
+    }
+    else if(pagepath.indexOf('collections') > -1) {
+      adminurl = '/admin/update/' + pagename;
+      affix = 'page:';
+      suffix = ':multiset';
+    }
+    else if(pagepath.indexOf('fragments') > -1) {
+      adminurl = '/admin/update/' + pagename;
+      affix = 'page:';
+      suffix = ':singleset';
+    }
+    else {
+      ironalloy.app.log.info('This should never happen as well');
+    }
 
-  multi.del('page:' + formdata.pagename + ':singleset')
-  multi.sadd('page:' + formdata.pagename + ':singleset', fragments)
+  multi.del(affix + pagename + suffix);
+  multi.sadd(affix + pagename + suffix, components);
   multi.exec(function (err) {
-    res.redirect('/admin/update/' + formdata.pagename, 301);
+    res.redirect(adminurl, 301);
   });
 }
 
@@ -284,5 +310,5 @@ module.exports.getAdminArray = getAdminArray;
 module.exports.setPassword = setPassword;
 module.exports.removePageItems = removePageItems;
 module.exports.updatePageItems = updatePageItems;
-module.exports.updateComponentsItems = updateComponentsItems;
+module.exports.updateComponentItems = updateComponentItems;
 
