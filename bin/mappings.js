@@ -33,6 +33,8 @@ mappings.base.fragments = function fragments() {
   map.where('name').is('pagetitle').use('pagetitle');
   map.where('name').is('desc').use('desc');
   map.where('name').is('pagecontent').use('pagecontent');
+  map.where('name').is('title').use('title');
+  map.where('name').is('template').use('mastertemplate');
   map.where('name').is('pagefragments').use('pagefragments');
   map.where('action').is('/admin/update/pagename/fragments/').insert('posturl');
 
