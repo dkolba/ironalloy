@@ -166,6 +166,31 @@ function postComponents() {
   }
 }
 
+function updateCollection (pagename) {
+  var req = this.req
+    , res = this.res;
+
+  if (!req.session.legit) {
+    res.redirect('/login', 301);
+  }
+  else {
+    models.getAdminCollection(req, res, 'adminFragments', pagename,
+      mappings.base, views.renderView);
+  }
+}
+
+// Send fragment changes to redis
+function postCollection() {
+  var req = this.req
+    , res = this.res;
+
+  if (!req.session.legit) {
+    res.redirect('/login', 301);
+  }
+  else {
+    models.updateComponentCollection(req, res);
+  }
+}
 // Show a list of all available pages/collections
 function showUpdate() {
   var req = this.req
@@ -228,7 +253,8 @@ module.exports.logout = logout;
 module.exports.postLogin = postLogin;
 module.exports.postUpdate = postUpdate;
 module.exports.postPasswd = postPasswd;
-module.exports.postComponents= postComponents;
+module.exports.postComponents = postComponents;
+module.exports.postCollection = postCollection;
 module.exports.show404 = show404;
 module.exports.showAdmin = showAdmin;
 module.exports.showCreate = showCreate;
@@ -239,4 +265,5 @@ module.exports.showPasswd = showPasswd;
 module.exports.showUpdate = showUpdate;
 module.exports.updateCreate = updateCreate;
 module.exports.updateComponents = updateComponents;
+module.exports.updateCollection = updateCollection;
 

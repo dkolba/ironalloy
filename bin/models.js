@@ -1,5 +1,6 @@
 // TODO: Refactor test for collections/collection/fragments path into function
 // TODO: Replace all Redis sets with sorted sets
+// TODO: Redis error handling
 'use strict';
 var services = require('./services')
   , controller = require('./controller')
@@ -149,11 +150,7 @@ function getAdminComponents (req, res, blueprint, pagename, mappings,
     , adminurl;
 
     //Check if we need pages or collections and set variable
-    if(pagepath.indexOf('collection') > -1) {
-      adminurl = '/admin/update/collection/';
-      services.redisClient.smembers('collection:' + pagename, insertComponents);
-    }
-    else if(pagepath.indexOf('collections') > -1) {
+    if(pagepath.indexOf('collections') > -1) {
       adminurl = '/admin/update/' + pagename + '/collections/';
       services.redisClient.smembers('page:' + pagename + ':multiset',
         insertComponents);
@@ -188,6 +185,36 @@ function getAdminComponents (req, res, blueprint, pagename, mappings,
     }
 }
 
+function getAdminCollection (req, res, blueprint, pagename, mappings,
+  callback) {
+    var bp = blueprints[blueprint]
+    , pagepath = req.url.split('/');
+
+    //Check if we need pages or collections and set variable
+    services.redisClient.zrange('collection:' + pagename, 0, -1,
+      insertComponents);
+
+    function insertComponents(err, redisset) {
+      if(err) throw err;
+
+      var retconned = {}
+      , finalarray = [];
+
+      // Copy keys/values from blueprint configuration object
+      for (var key in bp.finalarray[0]) {
+        retconned[key] = bp.finalarray[0][key];
+      }
+
+      retconned.pagename = pagename;
+      retconned.pagefragments = redisset.toString();
+      retconned.posturl = '/admin/update/collection/';
+
+      finalarray.push(retconned);
+
+      callback(req, res, bp.pageobject, finalarray, mappings);
+    }
+}
+
 function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
   var bp = blueprints[blueprint]
     , finalarray  = []
@@ -211,7 +238,7 @@ function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
   }
 
   // Get sorted set of all existing pages
-  services.redisClient.zrange(sortedset, 0 ,-1 ,
+  services.redisClient.zrange(sortedset, 0, -1,
     function(err, allpagesarray) {
       if(err) throw err;
 
@@ -306,12 +333,37 @@ function updateComponentItems (req, res) {
   });
 }
 
+
+function updateComponentCollection (req, res) {
+  var formdata = req.body
+    , pagename = formdata.pagename
+    , multi = services.redisClient.multi()
+    , components = formdata.pagefragments.split(',')
+    , collection = [];
+
+  //Add collection to 'allcollections' in redis, so they can be listed later on
+  multi.zadd(['allcollections', 0, pagename]);
+
+  //Prepare a sorted set for redis
+  components.forEach(function(key, index) {
+    collection.push(index, key);
+  });
+  collection.unshift('collection:' + pagename );
+
+  multi.del('collection:' + pagename);
+  multi.zadd(collection);
+  multi.exec(function (err) {
+    res.redirect('/admin/update/collection/', 301);
+  });
+}
+
 module.exports.getPageObj = getPageObj;
 module.exports.getAdminObj = getAdminObj;
 module.exports.getAdminComponents = getAdminComponents;
+module.exports.getAdminCollection = getAdminCollection;
 module.exports.getAdminArray = getAdminArray;
 module.exports.setPassword = setPassword;
 module.exports.removePageItems = removePageItems;
 module.exports.updatePageItems = updatePageItems;
 module.exports.updateComponentItems = updateComponentItems;
-
+module.exports.updateComponentCollection = updateComponentCollection;

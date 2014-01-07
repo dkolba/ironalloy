@@ -21,9 +21,9 @@ var routes = {
       post: controller.postUpdate,
       "/collection/?": {
         get: controller.showUpdate,
-        post: controller.postComponents,
+        post: controller.postCollection,
         "/:collectionname/?": {
-          get: controller.updateComponents,
+          get: controller.updateCollection,
         }
       },
       "/:pagename/?": {
