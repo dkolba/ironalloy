@@ -305,26 +305,26 @@ function updateComponentItems (req, res) {
     , suffix
     , components = formdata.pagefragments.split(',');
 
-    // Check if we need pages or collections and set variable
-    if(pagepath.indexOf('collection') > -1) {
-      adminurl = '/admin/update/collection/';
-      affix = 'collection:';
-      suffix = '';
-      multi.zadd(['allcollections', 0, pagename]);
-    }
-    else if(pagepath.indexOf('collections') > -1) {
-      adminurl = '/admin/update/' + pagename;
-      affix = 'page:';
-      suffix = ':multiset';
-    }
-    else if(pagepath.indexOf('fragments') > -1) {
-      adminurl = '/admin/update/' + pagename;
-      affix = 'page:';
-      suffix = ':singleset';
-    }
-    else {
-      ironalloy.app.log.info('This should never happen as well');
-    }
+  // Check if we need pages or collections and set variable
+  if(pagepath.indexOf('collection') > -1) {
+    adminurl = '/admin/update/collection/';
+    affix = 'collection:';
+    suffix = '';
+    multi.zadd(['allcollections', 0, pagename]);
+  }
+  else if(pagepath.indexOf('collections') > -1) {
+    adminurl = '/admin/update/' + pagename;
+    affix = 'page:';
+    suffix = ':multiset';
+  }
+  else if(pagepath.indexOf('fragments') > -1) {
+    adminurl = '/admin/update/' + pagename;
+    affix = 'page:';
+    suffix = ':singleset';
+  }
+  else {
+    ironalloy.app.log.info('This should never happen as well');
+  }
 
   multi.del(affix + pagename + suffix);
   multi.sadd(affix + pagename + suffix, components);
