@@ -258,7 +258,9 @@ function updatePageItems (req, res) {
   multi.hmset('page:' + formdata.pagename, {
     "pagetitle": formdata.pagetitle,
     "pagecontent": formdata.pagecontent,
-    "desc": formdata.desc
+    "desc": formdata.desc,
+    "title": formdata.title,
+    "mastertemplate": formdata.template
   });
   multi.zadd(['allpages', 0, formdata.pagename]);
   multi.exec(function (err) {
@@ -281,6 +283,7 @@ function updateComponentItems (req, res) {
       adminurl = '/admin/update/collection/';
       affix = 'collection:';
       suffix = '';
+      multi.zadd(['allcollections', 0, pagename]);
     }
     else if(pagepath.indexOf('collections') > -1) {
       adminurl = '/admin/update/' + pagename;
