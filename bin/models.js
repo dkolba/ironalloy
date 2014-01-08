@@ -1,6 +1,7 @@
 // TODO: Refactor test for collections/collection/fragments path into function
 // TODO: Replace all Redis sets with sorted sets
 // TODO: Redis error handling
+// TODO: Delete from pageObj if Redis answers with null
 'use strict';
 var services = require('./services')
   , controller = require('./controller')
@@ -33,7 +34,6 @@ function getPageObj (req, res, pagename, mappings, callback) {
   function resolveSingleArray (err, redisset) {
     if(redisset.length){
       var multi = services.redisClient.multi();
-
       pageobj.pagesingleset = redisset;
 
       for (var i = 0; i < redisset.length; i++) {
@@ -61,7 +61,7 @@ function getPageObj (req, res, pagename, mappings, callback) {
 
       // Fetch each collection referenced in pagemultiset
       for (var i = 0; i < redisset.length; i++) {
-        multi.smembers('collection:' + redisset[i]);
+        multi.zrange('collection:' + redisset[i], 0, -1);
       }
 
       // Now we have an array of arrays, each one represents a collection
