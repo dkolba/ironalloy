@@ -1,25 +1,15 @@
-// TODO: mapping for allpages partial (insert pagename into href attribute)
-
 var plates = require('plates')
   , mappings = {};
 
-mappings.base = {};
+mappings.admin= {};
+mappings.index = {};
 
-mappings.base.singlemap = function singlemap (singledest) {
-  var map = plates.Map();
-  map.where('id').is(singledest).use('fragment');
 
-  return map;
-};
+/*
+ * PAGE MAPPINGS
+ */
 
-mappings.base.multimap = function multimap (collection) {
-  var map = plates.Map();
-  map.where('id').is(collection).use('fragment');
-
-  return map;
-};
-
-mappings.base.pagemap = function pagemap () {
+mappings.admin.pagemap = function pagemap () {
   var map = plates.Map();
   map.where('name').is('description').use('desc').as('content');
   map.tag('title').use('title');
@@ -27,7 +17,58 @@ mappings.base.pagemap = function pagemap () {
   return map;
 };
 
-mappings.base.fragments = function fragments() {
+mappings.index.pagemap = function pagemap () {
+  var map = plates.Map();
+  map.where('name').is('description').use('desc').as('content');
+  map.tag('title').use('title');
+
+  return map;
+};
+
+
+/*
+ * SINGLE MAPPINGS
+ */
+
+mappings.admin.singlemap = function singlemap (singledest) {
+  var map = plates.Map();
+  map.where('id').is(singledest).use('fragment');
+
+  return map;
+};
+
+mappings.index.singlemap = function singlemap (singledest) {
+  var map = plates.Map();
+  map.where('id').is(singledest).use('fragment');
+
+  return map;
+};
+
+
+/*
+ * MULTI MAPPINGS
+ */
+
+mappings.admin.multimap = function multimap (collection) {
+  var map = plates.Map();
+  map.where('id').is(collection).use('fragment');
+
+  return map;
+};
+
+mappings.index.multimap = function multimap (collection) {
+  var map = plates.Map();
+  map.where('id').is(collection).use('fragment');
+
+  return map;
+};
+
+
+/*
+ * FRAGMENTS MAPPINGS
+ */
+
+mappings.admin.fragments = function fragments() {
   var map = plates.Map();
   map.where('name').is('pagename').use('pagename');
   map.where('name').is('pagetitle').use('pagetitle');
@@ -41,10 +82,31 @@ mappings.base.fragments = function fragments() {
   return map;
 };
 
-mappings.base.collections = function fragments() {
+mappings.index.fragments = function fragments() {
+  var map = plates.Map();
+
+  return map;
+};
+
+
+
+/*
+ * COLLECTIONS MAPPINGS
+ */
+
+mappings.admin.collections = function fragments() {
   var map = plates.Map();
   map.where('class').is('pagename').use('pagename');
   map.where('href').is('pagename').insert('adminurl');
+  map.where('class').is('nu').use('pagecontent');
+
+  return map;
+};
+
+mappings.index.collections = function collections() {
+  var map = plates.Map();
+  map.class('news').to('pagecontent');
+  map.where('href').is('linktosite').insert('sitelink');
 
   return map;
 };

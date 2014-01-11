@@ -12,14 +12,14 @@ var services = require('./services')
 function showIndex () {
   var req = this.req
     , res = this.res;
-  models.getPageObj(req, res, 'index', mappings.base, views.renderView);
+  models.getPageObj(req, res, 'index', mappings.index, views.renderView);
 }
 
 // Fetch page via pagename from redis and render template
 function showPage(pagename) {
   var req = this.req
     , res = this.res;
-  models.getPageObj(req, res, pagename, mappings.base, views.renderView);
+  models.getPageObj(req, res, pagename, mappings.admin, views.renderView);
 }
 
 function logout () {
@@ -40,7 +40,7 @@ function showAdmin() {
    res.redirect('/login', 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminIndex', null, mappings.base,
+    models.getAdminObj(req, res, 'adminIndex', null, mappings.admin,
       views.renderView);
   }
 }
@@ -48,7 +48,7 @@ function showAdmin() {
 function showLogin() {
   var req = this.req
     , res = this.res;
-  models.getAdminObj(req, res, 'adminLogin', null, mappings.base,
+  models.getAdminObj(req, res, 'adminLogin', null, mappings.admin,
     views.renderView);
 }
 
@@ -83,7 +83,7 @@ function showPasswd() {
     res.redirect('/login', 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminPasswd', null, mappings.base,
+    models.getAdminObj(req, res, 'adminPasswd', null, mappings.admin,
       views.renderView);
   }
 }
@@ -120,7 +120,7 @@ function showCreate() {
     res.redirect('/login', 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminCreate', null, mappings.base,
+    models.getAdminObj(req, res, 'adminCreate', null, mappings.admin,
       views.renderView);
   }
 }
@@ -134,7 +134,7 @@ function updateCreate(pagename) {
     res.redirect('/login', 301);
   }
   else {
-    models.getAdminObj(req, res, 'adminCreate', pagename, mappings.base,
+    models.getAdminObj(req, res, 'adminCreate', pagename, mappings.admin,
       views.renderView);
   }
 }
@@ -149,7 +149,7 @@ function updateComponents(pagename) {
   }
   else {
     models.getAdminComponents(req, res, 'adminFragments', pagename,
-      mappings.base, views.renderView);
+      mappings.admin, views.renderView);
   }
 }
 
@@ -175,7 +175,7 @@ function updateCollection (pagename) {
   }
   else {
     models.getAdminCollection(req, res, 'adminFragments', pagename,
-      mappings.base, views.renderView);
+      mappings.admin, views.renderView);
   }
 }
 
@@ -200,7 +200,7 @@ function showUpdate() {
     res.redirect('/login', 301);
   }
   else {
-    models.getAdminArray(req, res, 'adminList', null, mappings.base,
+    models.getAdminArray(req, res, 'adminList', null, mappings.admin,
       views.renderView);
   }
 }
@@ -234,7 +234,7 @@ function deletePage(pagename) {
 // Show consistent 404 page
 function show404(err, req, res) {
     //Check whether show404 was called directly via director or another function
-    //and adjust req/res 
+    //and adjust req/res
   if (res) {
     var res = res
       , req = req;
@@ -245,7 +245,7 @@ function show404(err, req, res) {
   }
 
   res.statusCode = 404;
-  models.getAdminObj(req, res, '404', null, mappings.base, views.renderView);
+  models.getAdminObj(req, res, '404', null, mappings.admin, views.renderView);
 }
 
 module.exports.deletePage = deletePage;

@@ -13,8 +13,6 @@ dishwasher.setFolder('../templates/', __dirname);
 function renderView(req, res, pageobj, finalarray, mappings) {
   var hypertext = dishwasher.rinse(pageobj, finalarray, mappings);
 
-  // var hypertext = dishwasher.rinse(pageobj, finalarray, mappings.pagemap,
-  //   mappings.singlemap, mappings.multimap);
   services.etags[req.url] = (crypto.createHash('md5')
                               .update(hypertext, 'utf8')
                               .digest('hex'))

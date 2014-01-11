@@ -1,7 +1,6 @@
-// TODO: Refactor test for collections/collection/fragments path into function
-// TODO: Replace all Redis sets with sorted sets
 // TODO: Redis error handling
 // TODO: Delete from pageObj if Redis answers with null
+
 'use strict';
 var services = require('./services')
   , controller = require('./controller')
@@ -287,7 +286,8 @@ function updatePageItems (req, res) {
     "pagecontent": formdata.pagecontent,
     "desc": formdata.desc,
     "title": formdata.title,
-    "mastertemplate": formdata.template
+    "mastertemplate": formdata.template,
+    "sitelink": '/' + formdata.pagename
   });
   multi.zadd(['allpages', 0, formdata.pagename]);
   multi.exec(function (err) {
@@ -306,13 +306,7 @@ function updateComponentItems (req, res) {
     , components = formdata.pagefragments.split(',');
 
   // Check if we need pages or collections and set variable
-  if(pagepath.indexOf('collection') > -1) {
-    adminurl = '/admin/update/collection/';
-    affix = 'collection:';
-    suffix = '';
-    multi.zadd(['allcollections', 0, pagename]);
-  }
-  else if(pagepath.indexOf('collections') > -1) {
+  if(pagepath.indexOf('collections') > -1) {
     adminurl = '/admin/update/' + pagename;
     affix = 'page:';
     suffix = ':multiset';
