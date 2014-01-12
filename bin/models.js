@@ -113,6 +113,10 @@ function getAdminObj(req, res, blueprint, pagename, mappings, callback) {
       , finalarray = []
       , hash = hash || '';
 
+    //Make backup, so that the original values do not get lost
+    hash.receiver = hash.destination;
+    hash.partialtemplate = hash.partial;
+
     // Delete keys of which we know we want to replace them (just in case...).
     delete hash.destination;
     delete hash.partial;
@@ -127,7 +131,6 @@ function getAdminObj(req, res, blueprint, pagename, mappings, callback) {
     }
 
     retconned.pagename = pagename;
-
     finalarray.push(retconned);
 
     callback(req, res, bp.pageobject, finalarray, mappings);
@@ -287,6 +290,8 @@ function updatePageItems (req, res) {
     "desc": formdata.desc,
     "title": formdata.title,
     "mastertemplate": formdata.template,
+    "partial": formdata.partialtemplate,
+    "destination": formdata.receiver,
     "sitelink": '/' + formdata.pagename
   });
   multi.zadd(['allpages', 0, formdata.pagename]);

@@ -77,6 +77,8 @@ mappings.admin.fragments = function fragments() {
   map.where('name').is('title').use('title');
   map.where('name').is('template').use('mastertemplate');
   map.where('name').is('pagefragments').use('pagefragments');
+  map.where('name').is('partialtemplate').use('partialtemplate');
+  map.where('name').is('receiver').use('receiver');
   map.where('action').is('/admin/update/pagename/fragments/').insert('posturl');
 
   return map;
