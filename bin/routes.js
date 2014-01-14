@@ -1,3 +1,5 @@
+//TODO: Rename showUpdate function
+
 var controller = require('./controller');
 
 // Define routing table
@@ -38,10 +40,15 @@ var routes = {
         }
       }
     },
-   "/passwd/?" : {
-     get: controller.showPasswd,
-     post: controller.postPasswd
-   }
+    "/upload/?" : {
+      get: controller.showUpdate,
+      post: controller.postUpload,
+      stream: true
+    },
+    "/passwd/?" : {
+      get: controller.showPasswd,
+      post: controller.postPasswd
+    }
   },
   "/login/?" : {
     get: controller.showLogin,

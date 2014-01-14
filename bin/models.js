@@ -5,7 +5,9 @@
 var services = require('./services')
   , controller = require('./controller')
   , blueprints = require('./blueprints')
-  , ironalloy = require('./ironalloy');
+  , ironalloy = require('./ironalloy')
+  , formidable = require('formidable')
+  , util = require('util');
 
 // This fetches data from redis and builds an object and array which can be used
 // by dishwasher.
@@ -227,6 +229,9 @@ function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
   if(pagepath.indexOf('collection') > -1) {
     sortedset = 'allcollections';
   }
+  else if(pagepath.indexOf('upload') > -1) {
+    sortedset = 'alluploads';
+  }
   else {
     sortedset = 'allpages';
   }
@@ -249,6 +254,9 @@ function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
         var tmp = {};
         if(sortedset === 'allpages') {
           tmp.adminurl = '/admin/update/' + element;
+        }
+        else if(sortedset === 'alluploads') {
+          tmp.adminurl = '/public/uploads/' + element;
         }
         else {
           tmp.adminurl = '/admin/update/collection/' + element;
@@ -356,6 +364,51 @@ function updateComponentCollection (req, res) {
   });
 }
 
+function upload (req, res) {
+  var form = new formidable.IncomingForm();
+  form.encoding = 'utf-8';
+  form.uploadDir = process.cwd() + '/public/uploads';
+  form.keepExtensions = true;
+  form.type = 'multipart';
+  form.maxFieldsSize = 2 * 1024 * 1024;
+  form.maxFields = 1000;
+  form.hash = true;
+
+
+  form
+    .on('error', function(err) {
+      throw err;
+    })
+    .on('field', function(field, value) {
+      //receive form fields here
+    })
+    .on ('fileBegin', function(name, file){
+      //rename the incoming file to the file's name
+      file.path = form.uploadDir + "/" + file.name;
+    })
+    .on('file', function(field, file) {
+      //On file received
+      services.redisClient.zadd(['alluploads', 0, file.name], function(err) {});
+    })
+    .on('progress', function(bytesReceived, bytesExpected) {
+      // var percent = (bytesReceived / bytesExpected * 100) | 0;
+      // console.log('Uploading: %' + percent +'\r');
+    })
+    .on('end', function() {
+      // console.log('File is complete');
+    });
+
+  form.parse(req, function(err, fields, files) {
+    res.writeHead(200, {'content-type': 'text/plain'});
+    res.write('received upload:\n\n');
+    res.end(util.inspect({fields: fields, files: files}));
+  });
+
+  //Force the buffer in the request pipe to release the buffered chunks!!
+  //Without this line union will not work with formidable.
+  req.buffer = false;
+}
+
 module.exports.getPageObj = getPageObj;
 module.exports.getAdminObj = getAdminObj;
 module.exports.getAdminComponents = getAdminComponents;
@@ -366,3 +419,4 @@ module.exports.removePageItems = removePageItems;
 module.exports.updatePageItems = updatePageItems;
 module.exports.updateComponentItems = updateComponentItems;
 module.exports.updateComponentCollection = updateComponentCollection;
+module.exports.upload = upload;

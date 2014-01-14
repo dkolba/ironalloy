@@ -218,6 +218,19 @@ function postUpdate() {
   }
 }
 
+// Send formdata to redis
+function postUpload() {
+  var req = this.req
+    , res = this.res;
+
+  if (!req.session.legit) {
+    res.redirect('/login', 301);
+  }
+  else {
+    models.upload(req, res);
+  }
+}
+
 // Delete page from redis
 function deletePage(pagename) {
   var req = this.req
@@ -266,4 +279,5 @@ module.exports.showUpdate = showUpdate;
 module.exports.updateCreate = updateCreate;
 module.exports.updateComponents = updateComponents;
 module.exports.updateCollection = updateCollection;
+module.exports.postUpload = postUpload;
 
