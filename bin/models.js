@@ -399,9 +399,10 @@ function upload (req, res) {
     });
 
   form.parse(req, function(err, fields, files) {
-    res.writeHead(200, {'content-type': 'text/plain'});
-    res.write('received upload:\n\n');
-    res.end(util.inspect({fields: fields, files: files}));
+    // res.writeHead(200, {'content-type': 'text/plain'});
+    // res.write('received upload:\n\n');
+    // res.end(util.inspect({fields: fields, files: files}));
+    res.redirect('/admin/upload/', 301);
   });
 
   //Force the buffer in the request pipe to release the buffered chunks!!
