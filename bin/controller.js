@@ -166,6 +166,19 @@ function postComponents() {
   }
 }
 
+function showCollection() {
+  var req = this.req
+    , res = this.res;
+
+  if (!req.session.legit) {
+    res.redirect('/login', 301);
+  }
+  else {
+    models.getAdminCollection(req, res, 'adminFragments', null,
+      mappings.admin, views.renderView);
+  }
+}
+
 function updateCollection (pagename) {
   var req = this.req
     , res = this.res;
@@ -201,6 +214,20 @@ function showUpdate() {
   }
   else {
     models.getAdminArray(req, res, 'adminList', null, mappings.admin,
+      views.renderView);
+  }
+}
+
+// Show upload form
+function showUpload() {
+  var req = this.req
+    , res = this.res;
+
+  if (!req.session.legit) {
+    res.redirect('/login', 301);
+  }
+  else {
+    models.getAdminObj(req, res, 'adminUpload', null, mappings.admin,
       views.renderView);
   }
 }
@@ -244,6 +271,32 @@ function deletePage(pagename) {
   }
 }
 
+// Delete collection from redis
+function deleteCollection(collectionname) {
+  var req = this.req
+    , res = this.res;
+
+  if (!req.session.legit) {
+    res.redirect('/login', 301);
+  }
+  else {
+    models.removeCollectionItems(req, res, collectionname);
+  }
+}
+
+// Delete upload from redis and disk
+function deleteUpload(uploadname) {
+  var req = this.req
+    , res = this.res;
+
+  if (!req.session.legit) {
+    res.redirect('/login', 301);
+  }
+  else {
+    models.removeUploadItems(req, res, uploadname);
+  }
+}
+
 // Show consistent 404 page
 function show404(err, req, res) {
     //Check whether show404 was called directly via director or another function
@@ -262,6 +315,8 @@ function show404(err, req, res) {
 }
 
 module.exports.deletePage = deletePage;
+module.exports.deleteCollection = deleteCollection;
+module.exports.deleteUpload = deleteUpload;
 module.exports.logout = logout;
 module.exports.postLogin = postLogin;
 module.exports.postUpdate = postUpdate;
@@ -278,6 +333,8 @@ module.exports.showPasswd = showPasswd;
 module.exports.showUpdate = showUpdate;
 module.exports.updateCreate = updateCreate;
 module.exports.updateComponents = updateComponents;
+module.exports.showCollection = showCollection;
+module.exports.showUpload = showUpload;
 module.exports.updateCollection = updateCollection;
 module.exports.postUpload = postUpload;
 

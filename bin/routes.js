@@ -1,4 +1,4 @@
-//TODO: Rename showUpdate function
+//TODO: Rename showUpdate function (e.g. showList?)
 
 var controller = require('./controller');
 
@@ -10,17 +10,40 @@ var routes = {
   "/admin/?" : {
     get: controller.showAdmin,
     "/create/?" : {
-      get: controller.showCreate
+      get: controller.show404,
+      "/page/?" : {
+        get: controller.showCreate
+      },
+      "/collection/?" : {
+        get: controller.showCollection,
+      },
+      "/upload/?" : {
+        get: controller.showUpload,
+      }
     },
     "/delete/?" : {
       get: controller.show404,
-      "/:pagename/?" : {
-        get: controller.deletePage
-      }
+      "/page/?" : {
+        get: controller.show404,
+        "/:pagename/?": {
+          get: controller.deletePage
+        },
+      },
+      "/collection/?" : {
+        get: controller.show404,
+        "/:collectionname/?": {
+          get: controller.deleteCollection
+        },
+      },
+      "/upload/?" : {
+        get: controller.show404,
+        "/:uploadname/?": {
+          get: controller.deleteUpload
+        },
+      },
     },
     "/update/?" : {
-      get: controller.showUpdate,
-      post: controller.postUpdate,
+      get: controller.show404,
       "/collection/?": {
         get: controller.showUpdate,
         post: controller.postCollection,
@@ -28,15 +51,19 @@ var routes = {
           get: controller.updateCollection,
         }
       },
-      "/:pagename/?": {
-        get: controller.updateCreate,
-        "/fragments/?": {
-          get: controller.updateComponents,
-          post: controller.postComponents
-        },
-        "/collections/?": {
-          get: controller.updateComponents,
-          post: controller.postComponents
+      "/page/?" : {
+       get: controller.showUpdate,
+       post: controller.postUpdate,
+        "/:pagename/?": {
+          get: controller.updateCreate,
+          "/fragments/?": {
+            get: controller.updateComponents,
+            post: controller.postComponents
+          },
+          "/collections/?": {
+            get: controller.updateComponents,
+            post: controller.postComponents
+          }
         }
       }
     },

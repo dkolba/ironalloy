@@ -7,6 +7,7 @@ var services = require('./services')
   , blueprints = require('./blueprints')
   , ironalloy = require('./ironalloy')
   , formidable = require('formidable')
+  , fs = require('fs')
   , util = require('util');
 
 // This fetches data from redis and builds an object and array which can be used
@@ -155,12 +156,12 @@ function getAdminComponents (req, res, blueprint, pagename, mappings,
 
     //Check if we need pages or collections and set variable
     if(pagepath.indexOf('collections') > -1) {
-      adminurl = '/admin/update/' + pagename + '/collections/';
+      adminurl = '/admin/update/page/' + pagename + '/collections/';
       services.redisClient.smembers('page:' + pagename + ':multiset',
         insertComponents);
     }
     else if(pagepath.indexOf('fragments') > -1) {
-      adminurl = '/admin/update/' + pagename + '/fragments/';
+      adminurl = '/admin/update/page/' + pagename + '/fragments/';
       services.redisClient.smembers('page:' + pagename + ':singleset',
         insertComponents);
     }
@@ -253,7 +254,7 @@ function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
       allpagesarray.forEach(function(element)  {
         var tmp = {};
         if(sortedset === 'allpages') {
-          tmp.adminurl = '/admin/update/' + element;
+          tmp.adminurl = '/admin/update/page/' + element;
         }
         else if(sortedset === 'alluploads') {
           tmp.adminurl = '/public/uploads/' + element;
@@ -284,7 +285,28 @@ function removePageItems(req, res, pagename) {
   multi.del('page:' + pagename + ':multiset');
   multi.zrem(['allpages', pagename]);
   multi.exec(function (err) {
-    res.redirect('/admin/update', 301);
+    res.redirect('/admin/update/page/', 301);
+  });
+}
+
+function removeCollectionItems(req, res, collectionname) {
+  var multi = services.redisClient.multi();
+
+  multi.zrem(['allcollections', collectionname]);
+  multi.exec(function (err) {
+    res.redirect('/admin/update/collection/', 301);
+  });
+}
+
+function removeUploadItems(req, res, uploadname) {
+  var multi = services.redisClient.multi();
+
+  multi.zrem(['alluploads', uploadname]);
+  multi.exec(function (err) {
+    fs.unlink(process.cwd() + '/public/uploads/' + uploadname, function(err) {
+      if (err) throw err;
+    });
+    res.redirect('/admin/update/upload/', 301);
   });
 }
 
@@ -304,7 +326,7 @@ function updatePageItems (req, res) {
   });
   multi.zadd(['allpages', 0, formdata.pagename]);
   multi.exec(function (err) {
-    res.redirect('/admin/update', 301);
+    res.redirect('/admin/update/page/', 301);
   });
 }
 
@@ -320,12 +342,12 @@ function updateComponentItems (req, res) {
 
   // Check if we need pages or collections and set variable
   if(pagepath.indexOf('collections') > -1) {
-    adminurl = '/admin/update/' + pagename;
+    adminurl = '/admin/update/page/' + pagename;
     affix = 'page:';
     suffix = ':multiset';
   }
   else if(pagepath.indexOf('fragments') > -1) {
-    adminurl = '/admin/update/' + pagename;
+    adminurl = '/admin/update/page/' + pagename;
     affix = 'page:';
     suffix = ':singleset';
   }
@@ -417,6 +439,8 @@ module.exports.getAdminCollection = getAdminCollection;
 module.exports.getAdminArray = getAdminArray;
 module.exports.setPassword = setPassword;
 module.exports.removePageItems = removePageItems;
+module.exports.removeCollectionItems = removeCollectionItems;
+module.exports.removeUploadItems = removeUploadItems;
 module.exports.updatePageItems = updatePageItems;
 module.exports.updateComponentItems = updateComponentItems;
 module.exports.updateComponentCollection = updateComponentCollection;

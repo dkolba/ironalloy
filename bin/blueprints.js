@@ -64,6 +64,22 @@ var blueprints = {
     }
   },
 
+  adminUpload: {
+    pageobject: {
+      title: "Upload new file",
+      desc: "Just upload the file",
+      mastertemplate: "adminbasis",
+      pagesingleset: ["adminUploadForm"],
+      pagemultiset: []
+    },
+    adminUploadForm: {
+      partial:"adminupload",
+      destination:"admincontent",
+      greeting:"ahoi",
+      collection:"none"
+    }
+  },
+
   adminFragments: {
     pageobject: {
       title: "Show all Fragments of this page",
@@ -121,6 +137,7 @@ blueprints.adminPasswd.finalarray = [blueprints.adminPasswd.adminPasswdForm];
 blueprints.adminCreate.finalarray = [blueprints.adminCreate.adminCreateForm];
 blueprints.adminFragments.finalarray = [blueprints.adminFragments.adminFragmentsForm];
 blueprints.adminList.finalarray = [blueprints.adminList.adminListFrame];
+blueprints.adminUpload.finalarray = [blueprints.adminUpload.adminUploadForm];
 blueprints[404].finalarray = [blueprints[404].iamgone];
 
 module.exports = blueprints;
