@@ -32,5 +32,12 @@ ironalloy.start(process.env.port || 8080, function(err) {
   ironalloy.log.info('union with director running on 8080');
 });
 
+//Last resort
+process.on('uncaughtException', function (err) {
+  console.error(err.stack)
+  ironalloy.log.info('union crashed, BAD!');
+  process.exit(1)
+})
+
 module.exports.app = ironalloy;
 

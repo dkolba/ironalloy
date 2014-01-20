@@ -1,5 +1,5 @@
-// TODO: Redis error handling
 // TODO: Delete from pageObj if Redis answers with null
+// TODO: Use domains for error handling
 
 'use strict';
 var services = require('./services')
@@ -21,6 +21,8 @@ function getPageObj (req, res, pagename, mappings, callback) {
 
   // Fetch the singleset which belongs to pagename key from redis
   function getPageSingleArray(err, hash) {
+    if (err) return controller.show500(err, req, res);
+
     if (hash) {
       pageobj = hash;
       pageobj.pagesingleset = [];
@@ -34,6 +36,8 @@ function getPageObj (req, res, pagename, mappings, callback) {
   }
   // Fetch each object from singleset from redis
   function resolveSingleArray (err, redisset) {
+    if (err) return controller.show500(err, req, res);
+
     if(redisset.length){
       var multi = services.redisClient.multi();
       pageobj.pagesingleset = redisset;
@@ -42,6 +46,8 @@ function getPageObj (req, res, pagename, mappings, callback) {
         multi.hgetall('page:' + redisset[i]);
       }
       multi.exec(function (err, array) {
+        if (err) return controller.show500(err, req, res);
+
         var tempobj = {collname:'none'};
 
         // Add 'collection' key and push object into finalarray
@@ -56,6 +62,8 @@ function getPageObj (req, res, pagename, mappings, callback) {
 
   // Fetch each
   function getPageMultiArray (err, redisset) {
+    if (err) return controller.show500(err, req, res);
+
     if(redisset.length) {
       var multi = services.redisClient.multi();
 
@@ -68,6 +76,8 @@ function getPageObj (req, res, pagename, mappings, callback) {
 
       // Now we have an array of arrays, each one represents a collection
       multi.exec(function (err, multiarray) {
+        if (err) return controller.show500(err, req, res);
+
         multiarray.forEach(function (key, index) {
           resolveMultiArray(key, index, multiarray);
         });
@@ -87,6 +97,8 @@ function getPageObj (req, res, pagename, mappings, callback) {
       multi.hgetall('page:' + redisset[i]);
     }
     multi.exec(function (err, array) {
+      if (err) return controller.show500(err, req, res);
+
       var tempobj = {collname:arrayname};
 
       // Add "collection" key and push object into finalarray
@@ -112,6 +124,7 @@ function getAdminObj(req, res, blueprint, pagename, mappings, callback) {
   // Remove blueprint configuration object from finalarray, retcon config data
   // and pageobject from redis and inject into finalarray.
   function modifyFinalarray(err, hash) {
+    if (err) return controller.show500(err, req, res);
     var retconned = {}
       , finalarray = []
       , hash = hash || '';
@@ -170,7 +183,7 @@ function getAdminComponents (req, res, blueprint, pagename, mappings,
     }
 
     function insertComponents(err, redisset) {
-      if(err) throw err;
+      if (err) return controller.show500(err, req, res);
 
       var retconned = {}
       , finalarray = [];
@@ -200,7 +213,7 @@ function getAdminCollection (req, res, blueprint, pagename, mappings,
       insertComponents);
 
     function insertComponents(err, redisset) {
-      if(err) throw err;
+      if (err) return controller.show500(err, req, res);
 
       var retconned = {}
       , finalarray = [];
@@ -248,7 +261,7 @@ function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
   // Get sorted set of all existing pages
   services.redisClient.zrange(sortedset, 0, -1,
     function(err, allpagesarray) {
-      if(err) throw err;
+      if (err) return controller.show500(err, req, res);
 
       // Insert object for each page in allpagesarray
       allpagesarray.forEach(function(element)  {
@@ -273,6 +286,8 @@ function getAdminArray(req, res, blueprint, pagename, mappings, callback) {
 
 function setPassword (req, res, hash) {
   services.redisClient.set('root', hash, function(err) {
+    if (err) return controller.show500(err, req, res);
+
     res.redirect('/admin', 301);
   });
 }
@@ -285,6 +300,8 @@ function removePageItems(req, res, pagename) {
   multi.del('page:' + pagename + ':multiset');
   multi.zrem(['allpages', pagename]);
   multi.exec(function (err) {
+    if (err) return controller.show500(err, req, res);
+
     res.redirect('/admin/update/page/', 301);
   });
 }
@@ -294,6 +311,8 @@ function removeCollectionItems(req, res, collectionname) {
 
   multi.zrem(['allcollections', collectionname]);
   multi.exec(function (err) {
+    if (err) return controller.show500(err, req, res);
+
     res.redirect('/admin/update/collection/', 301);
   });
 }
@@ -303,10 +322,13 @@ function removeUploadItems(req, res, uploadname) {
 
   multi.zrem(['alluploads', uploadname]);
   multi.exec(function (err) {
+    if (err) return controller.show500(err, req, res);
+
     fs.unlink(process.cwd() + '/public/uploads/' + uploadname, function(err) {
-      if (err) throw err;
+      if (err) return controller.show500(err, req, res);
+
+      res.redirect('/admin/update/upload/', 301);
     });
-    res.redirect('/admin/update/upload/', 301);
   });
 }
 
@@ -326,6 +348,8 @@ function updatePageItems (req, res) {
   });
   multi.zadd(['allpages', 0, formdata.pagename]);
   multi.exec(function (err) {
+    if (err) return controller.show500(err, req, res);
+
     res.redirect('/admin/update/page/', 301);
   });
 }
@@ -358,6 +382,8 @@ function updateComponentItems (req, res) {
   multi.del(affix + pagename + suffix);
   multi.sadd(affix + pagename + suffix, components);
   multi.exec(function (err) {
+    if (err) return controller.show500(err, req, res);
+
     res.redirect(adminurl, 301);
   });
 }
@@ -382,6 +408,8 @@ function updateComponentCollection (req, res) {
   multi.del('collection:' + pagename);
   multi.zadd(collection);
   multi.exec(function (err) {
+    if (err) return controller.show500(err, req, res);
+
     res.redirect('/admin/update/collection/', 301);
   });
 }
@@ -399,7 +427,7 @@ function upload (req, res) {
 
   form
     .on('error', function(err) {
-      throw err;
+      if (err) return controller.show500(err, req, res);
     })
     .on('field', function(field, value) {
       //receive form fields here
@@ -410,7 +438,9 @@ function upload (req, res) {
     })
     .on('file', function(field, file) {
       //On file received
-      services.redisClient.zadd(['alluploads', 0, file.name], function(err) {});
+      services.redisClient.zadd(['alluploads', 0, file.name], function(err) {
+        if (err) return controller.show500(err, req, res);
+      });
     })
     .on('progress', function(bytesReceived, bytesExpected) {
       // var percent = (bytesReceived / bytesExpected * 100) | 0;
@@ -421,9 +451,8 @@ function upload (req, res) {
     });
 
   form.parse(req, function(err, fields, files) {
-    // res.writeHead(200, {'content-type': 'text/plain'});
-    // res.write('received upload:\n\n');
-    // res.end(util.inspect({fields: fields, files: files}));
+    if (err) return controller.show500(err, req, res);
+
     res.redirect('/admin/upload/', 301);
   });
 

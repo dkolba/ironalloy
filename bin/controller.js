@@ -1,5 +1,6 @@
 // TODO: Globally replace req/res with this.req/this.res and remove var statements
 // TODO: Make postLogin() secure by not hashing immediately
+// TODO: show500() should use renderView()
 
 'use strict';
 var services = require('./services')
@@ -314,6 +315,12 @@ function show404(err, req, res) {
   models.getAdminObj(req, res, '404', null, mappings.admin, views.renderView);
 }
 
+// Show consistent 500 page
+function show500(err, req, res) {
+    res.writeHead(500, {"Content-Type": "text/html"});
+    res.end("500 - INTERNAL SERVER ERROR \n" + err);
+}
+
 module.exports.deletePage = deletePage;
 module.exports.deleteCollection = deleteCollection;
 module.exports.deleteUpload = deleteUpload;
@@ -324,6 +331,7 @@ module.exports.postPasswd = postPasswd;
 module.exports.postComponents = postComponents;
 module.exports.postCollection = postCollection;
 module.exports.show404 = show404;
+module.exports.show500 = show500;
 module.exports.showAdmin = showAdmin;
 module.exports.showCreate = showCreate;
 module.exports.showIndex = showIndex;
