@@ -1,5 +1,3 @@
-//TODO: Rename showUpdate function (e.g. showList?)
-
 var controller = require('./controller');
 
 // Define routing table
@@ -45,14 +43,14 @@ var routes = {
     "/update/?" : {
       get: controller.show404,
       "/collection/?": {
-        get: controller.showUpdate,
+        get: controller.showItem,
         post: controller.postCollection,
         "/:collectionname/?": {
           get: controller.updateCollection,
         }
       },
       "/page/?" : {
-       get: controller.showUpdate,
+       get: controller.showItem,
        post: controller.postUpdate,
         "/:pagename/?": {
           get: controller.updateCreate,
@@ -68,7 +66,7 @@ var routes = {
       }
     },
     "/upload/?" : {
-      get: controller.showUpdate,
+      get: controller.showItem,
       post: controller.postUpload,
       stream: true
     },

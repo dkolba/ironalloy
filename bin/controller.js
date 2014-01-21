@@ -206,7 +206,7 @@ function postCollection() {
   }
 }
 // Show a list of all available pages/collections
-function showUpdate() {
+function showItem() {
   var req = this.req
     , res = this.res;
 
@@ -338,7 +338,7 @@ module.exports.showIndex = showIndex;
 module.exports.showLogin = showLogin;
 module.exports.showPage = showPage;
 module.exports.showPasswd = showPasswd;
-module.exports.showUpdate = showUpdate;
+module.exports.showItem = showItem;
 module.exports.updateCreate = updateCreate;
 module.exports.updateComponents = updateComponents;
 module.exports.showCollection = showCollection;
