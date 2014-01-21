@@ -1,4 +1,3 @@
-// TODO: Delete from pageObj if Redis answers with null
 // TODO: Use domains for error handling
 
 'use strict';
@@ -38,6 +37,9 @@ function getPageObj (req, res, pagename, mappings, callback) {
   function resolveSingleArray (err, redisset) {
     if (err) return controller.show500(err, req, res);
 
+    //Make sure there is no junk in the array (white space, null, etc.)
+    redisset = services.purifyArray(redisset);
+
     if(redisset.length){
       var multi = services.redisClient.multi();
       pageobj.pagesingleset = redisset;
@@ -49,6 +51,9 @@ function getPageObj (req, res, pagename, mappings, callback) {
         if (err) return controller.show500(err, req, res);
 
         var tempobj = {collname:'none'};
+
+        //Make sure there is no junk in the array (white space, null, etc.)
+        array = services.purifyArray(array);
 
         // Add 'collection' key and push object into finalarray
         array.map(injectObjectCollection, tempobj);
@@ -100,6 +105,9 @@ function getPageObj (req, res, pagename, mappings, callback) {
       if (err) return controller.show500(err, req, res);
 
       var tempobj = {collname:arrayname};
+
+      //Make sure there is no junk in the array (white space, null, etc.)
+      array = services.purifyArray(array);
 
       // Add "collection" key and push object into finalarray
       array.map(injectObjectCollection, tempobj);
@@ -192,6 +200,9 @@ function getAdminComponents (req, res, blueprint, pagename, mappings,
       for (var key in bp.finalarray[0]) {
         retconned[key] = bp.finalarray[0][key];
       }
+
+      //Make sure there is no junk in the array (white space, null, etc.)
+      redisset = services.purifyArray(redisset);
 
       retconned.pagename = pagename;
       retconned.pagefragments = redisset.toString();

@@ -63,10 +63,25 @@ function cacheControl (url) {
     return ironalloy.app.config.get('cache_control');
   }
 }
+
+function purifyArray (array) {
+  //Iterate over array and trim white space from strings
+  for (var i = 0; i < array.length; i++) {
+    if(typeof array[i] === 'string')
+      array[i] = array[i].trim();
+  }
+
+  //Remove all instances of null, empty strings etc. form array
+  array = array.filter(function(n){return n});
+
+  return array
+}
+
 module.exports.redisClient = redisClient;
 module.exports.checkETag = checkETag;
 module.exports.etags = etags;
 module.exports.removePoweredBy = removePoweredBy;
 module.exports.redSession = redSession;
 module.exports.cacheControl = cacheControl;
+module.exports.purifyArray = purifyArray;
 
