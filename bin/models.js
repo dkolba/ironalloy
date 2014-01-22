@@ -1,5 +1,3 @@
-// TODO: Use domains for error handling
-
 'use strict';
 var services = require('./services')
   , controller = require('./controller')

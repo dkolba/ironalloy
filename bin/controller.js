@@ -1,7 +1,3 @@
-// TODO: Globally replace req/res with this.req/this.res and remove var statements
-// TODO: Make postLogin() secure by not hashing immediately
-// TODO: show500() should use renderView()
-
 'use strict';
 var services = require('./services')
   , views = require('./views')
