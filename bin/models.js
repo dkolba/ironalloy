@@ -426,7 +426,7 @@ function updateComponentCollection (req, res) {
 function upload (req, res) {
   var form = new formidable.IncomingForm();
   form.encoding = 'utf-8';
-  form.uploadDir = process.cwd() + '/public/uploads';
+  form.uploadDir = __dirname + '/../public/uploads';
   form.keepExtensions = true;
   form.type = 'multipart';
   form.maxFieldsSize = 2 * 1024 * 1024;
