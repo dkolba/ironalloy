@@ -34,10 +34,10 @@ ironalloy.start(process.env.port || 8080, function(err) {
 
 //Last resort
 process.on('uncaughtException', function (err) {
-  console.error(err.stack)
+  console.error(err.stack);
   ironalloy.log.info('union crashed, BAD!');
-  process.exit(1)
-})
+  process.exit(1);
+});
 
 module.exports.app = ironalloy;
 
