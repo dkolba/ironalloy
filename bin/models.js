@@ -350,6 +350,7 @@ function updatePageItems (req, res) {
     "pagecontent": formdata.pagecontent,
     "desc": formdata.desc,
     "title": formdata.title,
+    "image": formdata.image,
     "mastertemplate": formdata.template,
     "partial": formdata.partialtemplate,
     "destination": formdata.receiver,

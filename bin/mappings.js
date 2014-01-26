@@ -21,6 +21,7 @@ mappings.index.pagemap = function pagemap () {
   var map = plates.Map();
   map.where('name').is('description').use('desc').as('content');
   map.tag('title').use('title');
+  map.where('id').is('comic').use('image').as('src');
 
   return map;
 };
@@ -79,6 +80,7 @@ mappings.admin.fragments = function fragments() {
   map.where('name').is('pagefragments').use('pagefragments');
   map.where('name').is('partialtemplate').use('partialtemplate');
   map.where('name').is('receiver').use('receiver');
+  map.where('name').is('image').use('image');
   map.where('action').is('/admin/update/pagename/fragments/').insert('posturl');
 
   return map;
