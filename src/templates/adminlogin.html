@@ -1,6 +1,30 @@
-<form action="/login" method="post" accept-charset="UTF-8">
-  <textarea name="username" rows="1" cols="60"></textarea>
-  <input type="password" name="password" rows="1" cols="60"></textarea>
-  <input type="submit" value="Submit text"/>
-</form>
-<p>Hier kann man sich einloggen</p>
+<div class="col-sm-12">
+
+  <form class= "form-horizontal" role="form"
+    action="/login" method="post"
+    accept-charset="UTF-8">
+
+    <div class="form-group">
+      <label class="col-sm-2 control-label">Username</label>
+      <div class="col-sm-10">
+        <input name="username" rows="1" class="form-control" cols="60"></input>
+      </div>
+    </div><!-- close form-group -->
+
+    <div class="form-group">
+      <label class="col-sm-2 control-label">Password</label>
+      <div class="col-sm-10">
+        <input type="password" name="password" class="form-control" rows="1"
+          cols="60"></input>
+      </div>
+    </div><!-- close form-group -->
+
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" class="btn btn-default">Login</button>
+      </div>
+    </div><!-- close form-group -->
+
+  </form>
+
+</div>

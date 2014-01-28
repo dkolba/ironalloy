@@ -101,8 +101,8 @@ var blueprints = {
       title: "List all available pages",
       desc: "Existing pages",
       mastertemplate: "adminbasis",
-      pagesingleset: ["allpagesframe"],
-      pagemultiset: ["allpages"]
+      pagesingleset: ["adminlistframe"],
+      pagemultiset: ["adminallpages"]
     },
     adminListFrame: {
       partial:"adminlistframe",
@@ -110,7 +110,7 @@ var blueprints = {
       collection:"none"
     },
     adminListTable: {
-      collection:"allpages"
+      collection:"adminallpages"
     }
   },
 

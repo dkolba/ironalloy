@@ -82,6 +82,8 @@ mappings.admin.fragments = function fragments() {
   map.where('name').is('receiver').use('receiver');
   map.where('name').is('image').use('image');
   map.where('action').is('/admin/update/pagename/fragments/').insert('posturl');
+  map.where('href').is('fragmentslink').insert('fragmentsurl');
+  map.where('href').is('collectionslink').insert('collectionsurl');
 
   return map;
 };

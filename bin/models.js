@@ -153,6 +153,8 @@ function getAdminObj(req, res, blueprint, pagename, mappings, callback) {
     }
 
     retconned.pagename = pagename;
+    retconned.fragmentsurl = '/admin/update/page/'+pagename+'/fragments/';
+    retconned.collectionsurl = '/admin/update/page/'+pagename+'/collections/';
     finalarray.push(retconned);
 
     callback(req, res, bp.pageobject, finalarray, mappings);
@@ -171,16 +173,20 @@ function getAdminComponents (req, res, blueprint, pagename, mappings,
   callback) {
     var bp = blueprints[blueprint]
     , pagepath = req.url.split('/')
-    , adminurl;
+    , adminurl
+    , fragmentsurl
+    , collectionsurl;
 
+    fragmentsurl = '/admin/update/page/' + pagename + '/fragments/';
+    collectionsurl = '/admin/update/page/' + pagename + '/collections/';
     //Check if we need pages or collections and set variable
     if(pagepath.indexOf('collections') > -1) {
-      adminurl = '/admin/update/page/' + pagename + '/collections/';
+      adminurl = collectionsurl;
       services.redisClient.smembers('page:' + pagename + ':multiset',
         insertComponents);
     }
     else if(pagepath.indexOf('fragments') > -1) {
-      adminurl = '/admin/update/page/' + pagename + '/fragments/';
+      adminurl = fragmentsurl;
       services.redisClient.smembers('page:' + pagename + ':singleset',
         insertComponents);
     }
@@ -205,6 +211,8 @@ function getAdminComponents (req, res, blueprint, pagename, mappings,
       retconned.pagename = pagename;
       retconned.pagefragments = redisset.toString();
       retconned.posturl = adminurl;
+      retconned.fragmentsurl = fragmentsurl;
+      retconned.collectionsurl = collectionsurl;
 
       finalarray.push(retconned);
 
