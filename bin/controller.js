@@ -16,7 +16,7 @@ function showIndex () {
 function showPage(pagename) {
   var req = this.req
     , res = this.res;
-  models.getPageObj(req, res, pagename, mappings.admin, views.renderView);
+  models.getPageObj(req, res, pagename, mappings.index, views.renderView);
 }
 
 function logout () {
