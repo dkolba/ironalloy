@@ -6,6 +6,8 @@ TODO: Use /src/templates/ in development mode
 TODO: Use grunt-uncss
 TODO: Use grunt-processhtml
 TODO: Bust cache for 301
+TODO: GZIP html responses
+TODO: Generate /sitemap.xml
 
 AGENDA: Unit tests
 AGENDA: Content-Negotiation
