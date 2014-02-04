@@ -31,6 +31,7 @@ module.exports = function(grunt) {
            cwd: 'dist/public/',
            src: ['js/**', 'css/**'],
            dest: 'public/'},
+
           {expand: true,
            flatten: true,
            cwd: 'dist/',
@@ -38,7 +39,27 @@ module.exports = function(grunt) {
            dest: 'templates/',
            filter: 'isFile'}
         ]
-      }
+      },
+      bowerjsdeps: {
+        files: [
+          {expand: true,
+           flatten: true,
+           src: ['bower_components/jquery/jquery.js',
+                 'bower_components/bootstrap/dist/js/bootstrap.js',],
+           dest: 'src/scripts/vendor/',
+           filter: 'isFile'} // flattens results to a single level
+        ]
+      },
+      bowercssdeps: {
+        files: [
+          {expand: true,
+           flatten: true,
+           src: ['bower_components/bootstrap/dist/css/bootstrap.css',
+                 'bower_components/bootstrap/dist/css/bootstrap-theme.css'],
+           dest: 'src/styles/vendor/',
+           filter: 'isFile'} // flattens results to a single level
+        ]
+      },
     },
 
     htmlmin: {
@@ -96,6 +117,8 @@ module.exports = function(grunt) {
   grunt.registerTask('test', ['mochaTest']);
   grunt.registerTask('default', ['clean',
                                  'copy:main',
+                                 'copy:bowerjsdeps',
+                                 'copy:bowercssdeps',
                                  'useminPrepare',
                                  'concat',
                                  'cssmin',

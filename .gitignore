@@ -20,3 +20,5 @@ somefile.log
 dist/
 !src/templates
 templates/*
+src/scripts/vendor/
+src/styles/vendor/
