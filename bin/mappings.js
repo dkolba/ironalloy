@@ -1,9 +1,10 @@
 var plates = require('plates')
-  , mappings = {};
+  , mappings = {}
+  , setFolder = require('dishwasher').setFolder
+  , templates = setFolder('../templates/', __dirname);
 
 mappings.admin= {};
 mappings.index = {};
-
 
 /*
  * PAGE MAPPINGS

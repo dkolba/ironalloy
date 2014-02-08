@@ -31,7 +31,7 @@
     "keygrip": "~0.2.2",
     "cookies": "~0.3.6",
     "winston": "~0.7.2",
-    "dishwasher": "~0.4.0",
+    "dishwasher": "~0.4.1",
     "formidable": "~1.0.14"
   },
   "devDependencies": {

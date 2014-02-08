@@ -3,15 +3,12 @@
 var fs = require('fs')
   , plates = require('plates')
   , crypto = require('crypto')
-  , dishwasher = require('dishwasher')
+  , rinse = require('dishwasher').rinse
   , mappings = require('./mappings')
   , services = require('./services');
 
-// Load templates
-dishwasher.setFolder('../templates/', __dirname);
-
 function renderView(req, res, pageobj, finalarray, mappings) {
-  var hypertext = dishwasher.rinse(pageobj, finalarray, mappings);
+  var hypertext = rinse(pageobj, finalarray, mappings);
 
   services.etags[req.url] = (crypto.createHash('md5')
                               .update(hypertext, 'utf8')
