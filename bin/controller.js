@@ -19,6 +19,20 @@ function showPage(pagename) {
   models.getPageObj(req, res, pagename, mappings.index, views.renderView);
 }
 
+// Fetch random page from redis and render template
+function randomPage() {
+  var req = this.req
+    , res = this.res;
+  services.redisClient.zcard('allpages',
+    function(err, pagesum) {
+      var pagenum = Math.floor(Math.random() * pagesum);
+      services.redisClient.zrange('allpages', pagenum, pagenum,
+        function(err, fluke) {
+          models.getPageObj(req, res, fluke, mappings.index, views.renderView);
+      });
+  });
+}
+
 function logout () {
   var req = this.req
     , res = this.res;
