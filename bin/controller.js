@@ -25,9 +25,11 @@ function randomPage() {
     , res = this.res;
   services.redisClient.zcard('allpages',
     function(err, pagesum) {
+      if (err) return controller.show500(err, req, res);
       var pagenum = Math.floor(Math.random() * pagesum);
       services.redisClient.zrange('allpages', pagenum, pagenum,
         function(err, fluke) {
+          if (err) return controller.show500(err, req, res);
           models.getPageObj(req, res, fluke, mappings.index, views.renderView);
       });
   });
@@ -347,6 +349,7 @@ module.exports.showCreate = showCreate;
 module.exports.showIndex = showIndex;
 module.exports.showLogin = showLogin;
 module.exports.showPage = showPage;
+module.exports.randomPage = randomPage;
 module.exports.showPasswd = showPasswd;
 module.exports.showItem = showItem;
 module.exports.updateCreate = updateCreate;
