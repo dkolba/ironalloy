@@ -145,11 +145,11 @@ function getAdminObj(req, res, blueprint, pagename, mappings, callback) {
     delete hash.collection;
 
     // Clone finalarray blueprint object and pageobject into a new object. 
-    for (var key1 in hash) {
-      retconned[key1] = hash[key1];
-    }
     for (var key2 in bp.finalarray[0]) {
       retconned[key2] = bp.finalarray[0][key2];
+    }
+    for (var key1 in hash) {
+      retconned[key1] = hash[key1];
     }
 
     retconned.pagename = pagename;
@@ -209,7 +209,7 @@ function getAdminComponents (req, res, blueprint, pagename, mappings,
       redisset = services.purifyArray(redisset);
 
       retconned.pagename = pagename;
-      retconned.pagefragments = redisset.toString();
+      retconned.pagecomponents = redisset.toString();
       retconned.posturl = adminurl;
       retconned.fragmentsurl = fragmentsurl;
       retconned.collectionsurl = collectionsurl;
@@ -241,7 +241,7 @@ function getAdminCollection (req, res, blueprint, pagename, mappings,
       }
 
       retconned.pagename = pagename;
-      retconned.pagefragments = redisset.toString();
+      retconned.pagecomponents = redisset.toString();
       retconned.posturl = '/admin/update/collection/';
 
       finalarray.push(retconned);
@@ -380,7 +380,7 @@ function updateComponentItems (req, res) {
     , multi = services.redisClient.multi()
     , affix
     , suffix
-    , components = formdata.pagefragments.split(',');
+    , components = formdata.pagecomponents.split(',');
 
   // Check if we need pages or collections and set variable
   if(pagepath.indexOf('collections') > -1) {
@@ -411,7 +411,7 @@ function updateComponentCollection (req, res) {
   var formdata = req.body
     , pagename = formdata.pagename
     , multi = services.redisClient.multi()
-    , components = formdata.pagefragments.split(',')
+    , components = formdata.pagecomponents.split(',')
     , collection = [];
 
   //Add collection to 'allcollections' in redis, so they can be listed later on

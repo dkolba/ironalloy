@@ -1,0 +1,8 @@
+.input-group {
+  margin-bottom: 7px;
+}
+
+.input-group-addon {
+  text-align: left;
+  min-width: 145px;
+}

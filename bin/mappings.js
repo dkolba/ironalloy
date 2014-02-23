@@ -72,17 +72,17 @@ mappings.index.multimap = function multimap (collection) {
 
 mappings.admin.fragments = function fragments() {
   var map = plates.Map();
-  map.where('name').is('pagename').use('pagename');
-  map.where('name').is('pagetitle').use('pagetitle');
-  map.where('name').is('desc').use('desc');
+  map.where('name').is('pagename').use('pagename').as('value');
+  map.where('name').is('pagetitle').use('pagetitle').as('value');
+  map.where('name').is('desc').use('desc').as('value');
   map.where('name').is('pagecontent').use('pagecontent');
-  map.where('name').is('title').use('title');
-  map.where('name').is('template').use('mastertemplate');
-  map.where('name').is('pagefragments').use('pagefragments');
-  map.where('name').is('partialtemplate').use('partialtemplate');
-  map.where('name').is('receiver').use('receiver');
-  map.where('name').is('image').use('image');
-  map.where('action').is('/admin/update/pagename/fragments/').insert('posturl');
+  map.where('name').is('title').use('title').as('value');
+  map.where('name').is('template').use('mastertemplate').as('value');
+  map.where('name').is('pagecomponents').use('pagecomponents').as('value');
+  map.where('name').is('partialtemplate').use('partialtemplate').as('value');
+  map.where('name').is('receiver').use('receiver').as('value');
+  map.where('name').is('image').use('image').as('value');
+  map.where('action').is('actionurl').insert('posturl');
   map.where('href').is('fragmentslink').insert('fragmentsurl');
   map.where('href').is('collectionslink').insert('collectionsurl');
 

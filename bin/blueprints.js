@@ -57,6 +57,7 @@ var blueprints = {
       pagemultiset: []
     },
     adminCreateForm: {
+      pagecontent: "",
       partial:"admincreate",
       destination:"admincontent",
       greeting:"ahoi",
