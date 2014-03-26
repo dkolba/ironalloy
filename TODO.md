@@ -1,3 +1,7 @@
+NOW: Write save function which kills cached data
+NOW: Write setCache()
+NOW: Call setCache() at the end of renderView()
+
 TODO: Globally replace req/res with this.req/this.res and remove var statements
 TODO: Make postLogin() secure by not hashing immediately
 TODO: show500() should use renderView()

@@ -17,7 +17,8 @@ services.redisClient.auth(process.env.redissecret);
 // Use flatiron http server combo (director/union)
 ironalloy.use(flatiron.plugins.http, {
   onError: controller.show404,
-  before: [services.removePoweredBy, services.redSession, services.checkETag]
+  before: [services.removePoweredBy, services.redSession, services.checkETag,
+    services.getCache]
 });
 
 // Use st as file server

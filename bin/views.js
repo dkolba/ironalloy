@@ -2,18 +2,50 @@
 
 var fs = require('fs')
   , plates = require('plates')
-  , crypto = require('crypto')
   , rinse = require('dishwasher').rinse
   , mappings = require('./mappings')
-  , services = require('./services');
+  , services = require('./services')
+  , zlib = require('zlib');
 
 function renderView(req, res, pageobj, finalarray, mappings) {
   var hypertext = rinse(pageobj, finalarray, mappings);
 
-  services.etags[req.url] = (crypto.createHash('md5')
-                              .update(hypertext, 'utf8')
-                              .digest('hex'))
-                              .toString();
+  res.setHeader('Content-Type', 'text/html');
+  res.setHeader('ETag', services.setETag(req, hypertext));
+  res.setHeader('Cache-Control', services.cacheControl(req.url));
+  console.log('Broser hatte kein ETag ' + res.getHeader('ETag'));
+
+  if (req.prefenc === 'identity') {
+    rubberStampView(req, res, hypertext);
+  }
+
+  zlib.gzip(hypertext, function (err, buffer) {
+    if(req.prefenc === 'gzip') {
+      console.log(buffer.toString())
+      rubberStampView(req, res, buffer);
+    }
+    services.setCache(req, buffer.toString('binary'), 'gzip');
+  });
+
+  services.setCache(req, hypertext);
+}
+
+
+function rubberStampView (req, res, hypertext) {
+  res.writeHead(res.statusCode || 200, {
+    "Content-Type": "text/html",
+    "Content-Length": hypertext.length,
+    "content-encoding": req.prefenc,
+    "Cache-Control": services.cacheControl(req.url)
+  });
+  res.end(new Buffer(hypertext), 'binary');
+}
+
+
+function renderView2(req, res, pageobj, finalarray, mappings) {
+  var hypertext = rinse(pageobj, finalarray, mappings);
+
+  services.setETag(req, hypertext);
 
   if (res.statusCode === 404) {
     res.setHeader('Content-Type', 'text/html');
@@ -21,14 +53,24 @@ function renderView(req, res, pageobj, finalarray, mappings) {
     res.end(hypertext);
   }
   else {
-    res.writeHead(200, {
-      "Content-Type": "text/html",
-      "ETag": services.etags[req.url],
-      "Cache-Control": services.cacheControl(req.url)
+    // res.writeHead(200, {
+    //   "Content-Type": "text/html",
+    //   "ETag": services.etags[req.url],
+    //   "Cache-Control": services.cacheControl(req.url)
+    // });
+    // console.log(Buffer.byteLength(hypertext, 'utf8') + " bytes");
+    zlib.gzip(hypertext, function(err, buffer) {
+        res.writeHead(200, {
+          "Content-Type": "text/html",
+          'content-encoding': 'gzip',
+          "ETag": services.etags[req.url],
+          "Cache-Control": services.cacheControl(req.url)
+        });
+      res.end(buffer);
     });
-    res.end(hypertext);
+  // res.end(hypertext);
   }
 }
-
 module.exports.renderView = renderView;
+module.exports.rubberStampView = rubberStampView;
 
