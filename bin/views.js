@@ -13,7 +13,6 @@ function renderView(req, res, pageobj, finalarray, mappings) {
   res.setHeader('Content-Type', 'text/html');
   res.setHeader('ETag', services.setETag(req, hypertext));
   res.setHeader('Cache-Control', services.cacheControl(req.url));
-  console.log('Broser hatte kein ETag ' + res.getHeader('ETag'));
 
   if (req.prefenc === 'identity') {
     rubberStampView(req, res, hypertext);
@@ -21,13 +20,14 @@ function renderView(req, res, pageobj, finalarray, mappings) {
 
   zlib.gzip(hypertext, function (err, buffer) {
     if(req.prefenc === 'gzip') {
-      console.log(buffer.toString())
       rubberStampView(req, res, buffer);
     }
-    services.setCache(req, buffer.toString('binary'), 'gzip');
+    services.setCache(req, buffer, 'gzip');
+    console.log('saved gzip in cache for ', req.url);
   });
 
   services.setCache(req, hypertext);
+  console.log('saved identity in cache for ', req.url);
 }
 
 
@@ -38,7 +38,7 @@ function rubberStampView (req, res, hypertext) {
     "content-encoding": req.prefenc,
     "Cache-Control": services.cacheControl(req.url)
   });
-  res.end(new Buffer(hypertext), 'binary');
+  res.end(hypertext);
 }
 
 

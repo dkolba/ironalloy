@@ -144,7 +144,7 @@ function getAdminObj(req, res, blueprint, pagename, mappings, callback) {
     delete hash.partial;
     delete hash.collection;
 
-    // Clone finalarray blueprint object and pageobject into a new object. 
+    // Clone finalarray blueprint object and pageobject into a new object.
     for (var key2 in bp.finalarray[0]) {
       retconned[key2] = bp.finalarray[0][key2];
     }

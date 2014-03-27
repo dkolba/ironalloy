@@ -4,6 +4,8 @@
 
 var redis = require('redis')
   , redisClient = redis.createClient(process.env.redisport, process.env.host)
+  , redisBufferClient = redis.createClient(process.env.redisport,
+      process.env.host, {detect_buffers: true})
   , redsess = require('redsess')
   , cookies = require('cookies')
   , crypto = require('crypto')
@@ -12,19 +14,14 @@ var redis = require('redis')
   , views = require('./views')
   , ironalloy = require('./ironalloy');
 
-var etags = {};
-
 // Connect to redis db
 redisClient.auth(process.env.redissecret);
 
 function setETag (req, hypertext) {
-  var etag = (crypto.createHash('md5')
-                     .update(hypertext, 'utf8')
-                     .digest('hex'))
-                     .toString();
-  // redisClient.set('etag:' + req.url, etag, ironalloy.app.log.info);
-  // redisClient.set('etag:' + req.url, etag, redis.print);
-  redisClient.set('etag:' + req.url, etag, ironalloy.app.log.info);
+  var etag = crypto.createHash('md5').update(hypertext).digest('hex');
+
+  redisClient.set('etag:' + req.url, etag);
+  console.log('saved etag for ', req.url);
   return etag;
 }
 
@@ -41,6 +38,7 @@ function checkETag (req, res) {
       if (etag && req.headers['if-none-match'] === etag) {
         res.statusCode = 304;
         res.end();
+        console.log('sent 304 for ', req.url);
       }
       else {
         // if (etag) res.setHeader('ETag',  etag);
@@ -90,8 +88,7 @@ function cacheControl (url) {
 }
 
 function setCache (req, hypertext, encoding) {
-  redisClient.set('cache:' + req.url + ':' + encoding, hypertext,
-    ironalloy.app.log.info);
+  redisClient.set('cache:' + req.url + ':' + encoding, hypertext);
 }
 
 function getCache (req, res) {
@@ -111,17 +108,16 @@ function getCache (req, res) {
     res.emit('next');
   }
   else {
-    // Fetch cached html or gzip data from redis
-    redisClient.get('cache:' + req.url + ':' + req.prefenc, function (err, html) {
+    // Fetch cached html or gzip data from redis as buffer
+    redisBufferClient.get(new Buffer('cache:' + req.url + ':' + req.prefenc), function (err, html) {
       if (html) {
-        console.log(html);
         views.rubberStampView(req, res, html);
+        console.log('sent cached ' +  req.prefenc + ' for ', req.url);
       }
       else {
         res.emit('next');
       }
     });
-    console.log(negotiator.encoding(availableEncodings));
   }
 }
 
@@ -140,7 +136,6 @@ function purifyArray (array) {
 
 module.exports.redisClient = redisClient;
 module.exports.checkETag = checkETag;
-module.exports.etags = etags;
 module.exports.removePoweredBy = removePoweredBy;
 module.exports.redSession = redSession;
 module.exports.cacheControl = cacheControl;
