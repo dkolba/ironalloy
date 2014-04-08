@@ -8,10 +8,12 @@ var fs = require('fs')
   , zlib = require('zlib');
 
 function renderView(req, res, pageobj, finalarray, mappings) {
-  var hypertext = rinse(pageobj, finalarray, mappings);
-
+  var hypertext = rinse(pageobj, finalarray, mappings)
+    , etag = services.setETag(req, hypertext);
+  if(etag) {
+    res.setHeader('ETag', etag);
+  }
   res.setHeader('Content-Type', 'text/html');
-  res.setHeader('ETag', services.setETag(req, hypertext));
   res.setHeader('Cache-Control', services.cacheControl(req.url));
 
   if (req.prefenc === 'identity') {
@@ -23,11 +25,9 @@ function renderView(req, res, pageobj, finalarray, mappings) {
       rubberStampView(req, res, buffer);
     }
     services.setCache(req, buffer, 'gzip');
-    console.log('saved gzip in cache for ', req.url);
   });
 
-  services.setCache(req, hypertext);
-  console.log('saved identity in cache for ', req.url);
+  services.setCache(req, hypertext, 'identity');
 }
 
 

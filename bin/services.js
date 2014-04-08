@@ -20,18 +20,23 @@ redisClient.auth(process.env.redissecret);
 function setETag (req, hypertext) {
   var etag = crypto.createHash('md5').update(hypertext).digest('hex');
 
-  redisClient.set('etag:' + req.url, etag);
-  console.log('saved etag for ', req.url);
-  return etag;
+  if (req.method === 'GET') {
+    redisClient.set('etag:' + req.url, etag);
+    console.log('saved etag for ', req.url);
+    return etag;
+  }
 }
 
 function checkETag (req, res) {
   var entrypoint = req.url.split('/')[1];
 
   // If admin interface or static file server are concerned, send no 301
-  if  (entrypoint === 'admin' || entrypoint === 'public') {
+  if  (entrypoint === 'admin' || entrypoint === 'public' ||
+         entrypoint === 'login' || entrypoint === 'logout') {
+    console.log('admin seiten kriegen kein etag');
     res.emit('next');
   }
+
   else {
     redisClient.get('etag:' + req.url, function(err, etag) {
       req.etag = etag;
@@ -88,7 +93,14 @@ function cacheControl (url) {
 }
 
 function setCache (req, hypertext, encoding) {
-  redisClient.set('cache:' + req.url + ':' + encoding, hypertext);
+  var entrypoint = req.url.split('/')[1];
+
+  if (entrypoint !== 'admin' && entrypoint !== 'public' &&
+        entrypoint !== 'login' && entrypoint !== 'logout') {
+    console.log('Saved ' + encoding + ' cache for ' + req.url );
+    redisClient.set('cache:' + req.url + ':' + encoding, hypertext);
+  }
+
 }
 
 function getCache (req, res) {
@@ -96,7 +108,13 @@ function getCache (req, res) {
     , negotiator = new Negotiator(req)
     , entrypoint = req.url.split('/')[1];
 
+  if (req.method !== 'GET') {
+    res.emit('next');
+    return;
+  }
+
   if (req.etag) {
+    console.log('checkCache etag: ', req.etag);
     res.setHeader('ETag', req.etag);
   }
 
@@ -104,7 +122,8 @@ function getCache (req, res) {
   req.prefenc = negotiator.encoding(availableEncodings);
 
   // If admin interface or static file server are concerned, send no 304
-  if (entrypoint === 'admin' || entrypoint === 'public') {
+  if (entrypoint === 'admin' || entrypoint === 'public' ||
+        entrypoint === 'login' || entrypoint === 'logout') {
     res.emit('next');
   }
   else {
@@ -134,6 +153,21 @@ function purifyArray (array) {
   return array;
 }
 
+function invalidateCache () {
+  redisClient.zrange('allpages', 0, -1, function(err, allpages) {
+    var multi = redisClient.multi();
+
+    allpages[allpages.indexOf('index')] = '';
+    for (var i = 0; i < allpages.length; i++) {
+      multi.del('cache:/' + allpages[i] + ':identity');
+      multi.del('cache:/' + allpages[i] + ':gzip');
+      multi.del('etag:/' + allpages[i]);
+    }
+
+    multi.exec();
+  });
+}
+
 module.exports.redisClient = redisClient;
 module.exports.checkETag = checkETag;
 module.exports.removePoweredBy = removePoweredBy;
@@ -143,3 +177,4 @@ module.exports.purifyArray = purifyArray;
 module.exports.getCache = getCache;
 module.exports.setCache = setCache;
 module.exports.setETag = setETag;
+module.exports.invalidateCache = invalidateCache;

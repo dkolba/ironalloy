@@ -40,8 +40,11 @@ function logout () {
     , res = this.res;
   req.session.del('auth', function(err) {
     if(err) throw err;
+  res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+    + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/', 301);
   });
+  console.log('ausgeloggt');
 }
 
 // Fetch page via pagename from redis and render template
@@ -50,7 +53,9 @@ function showAdmin() {
     , res = this.res;
 
   if (!req.session.legit) {
-   res.redirect('/login', 301);
+  res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+    + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
+    res.redirect('/login', 301);
   }
   else {
     models.getAdminObj(req, res, 'adminIndex', null, mappings.admin,
@@ -80,9 +85,13 @@ function postLogin () {
   services.redisClient.get('root', function(err, password) {
     if (password && hash === password && formdata.username === 'root'){
       req.session.set('auth', formdata.username);
+      res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+        + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
       res.redirect('/admin', 301);
     }
     else {
+      res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+        + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
       res.redirect('/login', 301);
     }
   });
@@ -93,6 +102,8 @@ function showPasswd() {
     , res = this.res;
 
   if (!req.session.legit) {
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/login', 301);
   }
   else {
@@ -107,6 +118,8 @@ function postPasswd () {
     , formdata = req.body;
 
   if (!req.session.legit) {
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/login', 301);
   }
   else {
@@ -119,6 +132,8 @@ function postPasswd () {
       models.setPassword(req, res, hash);
     }
     else {
+      res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+        + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
       res.redirect('/admin/passwd', 301);
     }
   }
@@ -130,6 +145,8 @@ function showCreate() {
     , res = this.res;
 
   if (!req.session.legit) {
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/login', 301);
   }
   else {
@@ -144,11 +161,14 @@ function updateCreate(pagename) {
     , res = this.res;
 
   if (!req.session.legit) {
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/login', 301);
   }
   else {
     models.getAdminObj(req, res, 'adminCreate', pagename, mappings.admin,
       views.renderView);
+    services.invalidateCache();
   }
 }
 
@@ -158,11 +178,14 @@ function updateComponents(pagename) {
     , res = this.res;
 
   if (!req.session.legit) {
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/login', 301);
   }
   else {
     models.getAdminComponents(req, res, 'adminFragments', pagename,
       mappings.admin, views.renderView);
+    services.invalidateCache();
   }
 }
 
@@ -172,10 +195,13 @@ function postComponents() {
     , res = this.res;
 
   if (!req.session.legit) {
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/login', 301);
   }
   else {
     models.updateComponentItems(req, res);
+    services.invalidateCache();
   }
 }
 
@@ -184,6 +210,8 @@ function showCollection() {
     , res = this.res;
 
   if (!req.session.legit) {
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/login', 301);
   }
   else {
@@ -197,11 +225,14 @@ function updateCollection (pagename) {
     , res = this.res;
 
   if (!req.session.legit) {
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/login', 301);
   }
   else {
     models.getAdminCollection(req, res, 'adminFragments', pagename,
       mappings.admin, views.renderView);
+    services.invalidateCache();
   }
 }
 
@@ -211,10 +242,13 @@ function postCollection() {
     , res = this.res;
 
   if (!req.session.legit) {
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/login', 301);
   }
   else {
     models.updateComponentCollection(req, res);
+    services.invalidateCache();
   }
 }
 // Show a list of all available pages/collections
@@ -223,6 +257,8 @@ function showItem() {
     , res = this.res;
 
   if (!req.session.legit) {
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/login', 301);
   }
   else {
@@ -237,6 +273,8 @@ function showUpload() {
     , res = this.res;
 
   if (!req.session.legit) {
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/login', 301);
   }
   else {
@@ -251,10 +289,13 @@ function postUpdate() {
     , res = this.res;
 
   if (!req.session.legit) {
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/login', 301);
   }
   else {
     models.updatePageItems(req, res);
+    services.invalidateCache();
   }
 }
 
@@ -264,6 +305,8 @@ function postUpload() {
     , res = this.res;
 
   if (!req.session.legit) {
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/login', 301);
   }
   else {
@@ -277,10 +320,13 @@ function deletePage(pagename) {
     , res = this.res;
 
   if (!req.session.legit) {
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/login', 301);
   }
   else {
     models.removePageItems(req, res, pagename);
+    services.invalidateCache();
   }
 }
 
@@ -290,10 +336,13 @@ function deleteCollection(collectionname) {
     , res = this.res;
 
   if (!req.session.legit) {
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/login', 301);
   }
   else {
     models.removeCollectionItems(req, res, collectionname);
+    services.invalidateCache();
   }
 }
 
@@ -303,6 +352,8 @@ function deleteUpload(uploadname) {
     , res = this.res;
 
   if (!req.session.legit) {
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
+      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/login', 301);
   }
   else {
