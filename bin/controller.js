@@ -7,16 +7,14 @@ var services = require('./services')
   , key = 'abcdeg';
 
 function showIndex () {
-  var req = this.req
-    , res = this.res;
-  models.getPageObj(req, res, 'index', mappings.index, views.renderView);
+  models.getPageObj(this.req, this.res, 'index', mappings.index,
+    views.renderView);
 }
 
 // Fetch page via pagename from redis and render template
 function showPage(pagename) {
-  var req = this.req
-    , res = this.res;
-  models.getPageObj(req, res, pagename, mappings.index, views.renderView);
+  models.getPageObj(this.req, this.res, pagename, mappings.index,
+    views.renderView);
 }
 
 // Fetch random page from redis and render template
@@ -40,33 +38,21 @@ function logout () {
     , res = this.res;
   req.session.del('auth', function(err) {
     if(err) throw err;
-  res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-    + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
+    res.setHeader('Cache-Control', 'no-cache, private, no-store,' +
+     'must-revalidate, max-stale=0, post-check=0, pre-check=0');
     res.redirect('/', 301);
+    console.log('ausgeloggt');
   });
-  console.log('ausgeloggt');
 }
 
 // Fetch page via pagename from redis and render template
 function showAdmin() {
-  var req = this.req
-    , res = this.res;
-
-  if (!req.session.legit) {
-  res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-    + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
-  }
-  else {
-    models.getAdminObj(req, res, 'adminIndex', null, mappings.admin,
+  models.getAdminObj(this.req, this.res, 'adminIndex', null, mappings.admin,
       views.renderView);
-  }
 }
 
 function showLogin() {
-  var req = this.req
-    , res = this.res;
-  models.getAdminObj(req, res, 'adminLogin', null, mappings.admin,
+  models.getAdminObj(this.req, this.res, 'adminLogin', null, mappings.admin,
     views.renderView);
 }
 
@@ -85,280 +71,122 @@ function postLogin () {
   services.redisClient.get('root', function(err, password) {
     if (password && hash === password && formdata.username === 'root'){
       req.session.set('auth', formdata.username);
-      res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-        + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
+      res.setHeader('Cache-Control', 'no-cache, private, no-store,' +
+        'must-revalidate, max-stale=0, post-check=0, pre-check=0');
       res.redirect('/admin', 301);
     }
     else {
-      res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-        + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
+      res.setHeader('Cache-Control', 'no-cache, private, no-store,' +
+        'must-revalidate, max-stale=0, post-check=0, pre-check=0');
       res.redirect('/login', 301);
     }
   });
 }
 
 function showPasswd() {
-  var req = this.req
-    , res = this.res;
-
-  if (!req.session.legit) {
-    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
-  }
-  else {
-    models.getAdminObj(req, res, 'adminPasswd', null, mappings.admin,
-      views.renderView);
-  }
+  models.getAdminObj(this.req, this.res, 'adminPasswd', null, mappings.admin,
+    views.renderView);
 }
 
 function postPasswd () {
-  var req = this.req
-    , res = this.res
-    , formdata = req.body;
+  var formdata = this.req.body;
 
-  if (!req.session.legit) {
-    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
+  if (formdata.password === formdata.passwordrepeat){
+    var hash = (crypto.createHmac('sha1', key)
+                      .update(formdata.password)
+                      .digest('hex'))
+                      .toString();
+
+    models.setPassword(this.req, this.res, hash);
   }
   else {
-    if (formdata.password === formdata.passwordrepeat){
-      var hash = (crypto.createHmac('sha1', key)
-                        .update(formdata.password)
-                        .digest('hex'))
-                        .toString();
-
-      models.setPassword(req, res, hash);
-    }
-    else {
-      res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-        + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-      res.redirect('/admin/passwd', 301);
-    }
+    this.res.setHeader('Cache-Control', 'no-cache, private, no-store,' +
+      'must-revalidate, max-stale=0, post-check=0, pre-check=0');
+    this.res.redirect('/admin/passwd', 301);
   }
 }
 
 // Show create form
 function showCreate() {
-  var req = this.req
-    , res = this.res;
-
-  if (!req.session.legit) {
-    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
-  }
-  else {
-    models.getAdminObj(req, res, 'adminCreate', null, mappings.admin,
-      views.renderView);
-  }
+  models.getAdminObj(this.req, this.res, 'adminCreate', null, mappings.admin,
+    views.renderView);
 }
 
 // Show create form with old data
 function updateCreate(pagename) {
-  var req = this.req
-    , res = this.res;
 
-  if (!req.session.legit) {
-    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
-  }
-  else {
-    models.getAdminObj(req, res, 'adminCreate', pagename, mappings.admin,
-      views.renderView);
-    services.invalidateCache();
-  }
+  models.getAdminObj(this.req, this.res, 'adminCreate', pagename, mappings.admin,
+    views.renderView);
+  services.invalidateCache();
 }
 
 // Show fragments form of a certain page with old data
 function updateComponents(pagename) {
-  var req = this.req
-    , res = this.res;
-
-  if (!req.session.legit) {
-    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
-  }
-  else {
-    models.getAdminComponents(req, res, 'adminFragments', pagename,
-      mappings.admin, views.renderView);
-    services.invalidateCache();
-  }
+  models.getAdminComponents(this.req, this.res, 'adminFragments', pagename,
+    mappings.admin, views.renderView);
+  services.invalidateCache();
 }
 
 // Send fragment changes to redis
 function postComponents() {
-  var req = this.req
-    , res = this.res;
-
-  if (!req.session.legit) {
-    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
-  }
-  else {
-    models.updateComponentItems(req, res);
-    services.invalidateCache();
-  }
+  models.updateComponentItems(this.req, this.res);
+  services.invalidateCache();
 }
 
 function showCollection() {
-  var req = this.req
-    , res = this.res;
-
-  if (!req.session.legit) {
-    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
-  }
-  else {
-    models.getAdminCollection(req, res, 'adminFragments', null,
-      mappings.admin, views.renderView);
-  }
+  models.getAdminCollection(this.req, this.res, 'adminFragments', null,
+    mappings.admin, views.renderView);
 }
 
 function updateCollection (pagename) {
-  var req = this.req
-    , res = this.res;
-
-  if (!req.session.legit) {
-    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
-  }
-  else {
-    models.getAdminCollection(req, res, 'adminFragments', pagename,
-      mappings.admin, views.renderView);
-    services.invalidateCache();
-  }
+  models.getAdminCollection(this.req, this.res, 'adminFragments', pagename,
+    mappings.admin, views.renderView);
+  services.invalidateCache();
 }
 
 // Send fragment changes to redis
 function postCollection() {
-  var req = this.req
-    , res = this.res;
-
-  if (!req.session.legit) {
-    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
-  }
-  else {
-    models.updateComponentCollection(req, res);
-    services.invalidateCache();
-  }
+  models.updateComponentCollection(this.req, this.res);
+  services.invalidateCache();
 }
 // Show a list of all available pages/collections
 function showItem() {
-  var req = this.req
-    , res = this.res;
-
-  if (!req.session.legit) {
-    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
-  }
-  else {
-    models.getAdminArray(req, res, 'adminList', null, mappings.admin,
-      views.renderView);
-  }
+  models.getAdminArray(this.req, this.res, 'adminList', null, mappings.admin,
+    views.renderView);
 }
 
 // Show upload form
 function showUpload() {
-  var req = this.req
-    , res = this.res;
-
-  if (!req.session.legit) {
-    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
-  }
-  else {
-    models.getAdminObj(req, res, 'adminUpload', null, mappings.admin,
-      views.renderView);
-  }
+  models.getAdminObj(this.req, this.res, 'adminUpload', null, mappings.admin,
+    views.renderView);
 }
 
 // Send formdata to redis
 function postUpdate() {
-  var req = this.req
-    , res = this.res;
-
-  if (!req.session.legit) {
-    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
-  }
-  else {
-    models.updatePageItems(req, res);
-    services.invalidateCache();
-  }
+  models.updatePageItems(this.req, this.res);
+  services.invalidateCache();
 }
 
 // Send formdata to redis
 function postUpload() {
-  var req = this.req
-    , res = this.res;
-
-  if (!req.session.legit) {
-    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
-  }
-  else {
-    models.upload(req, res);
-  }
+  models.upload(this.req, this.res);
 }
 
 // Delete page from redis
 function deletePage(pagename) {
-  var req = this.req
-    , res = this.res;
-
-  if (!req.session.legit) {
-    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
-  }
-  else {
-    models.removePageItems(req, res, pagename);
-    services.invalidateCache();
-  }
+  models.removePageItems(this.req, this.res, pagename);
+  services.invalidateCache();
 }
 
 // Delete collection from redis
 function deleteCollection(collectionname) {
-  var req = this.req
-    , res = this.res;
-
-  if (!req.session.legit) {
-    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
-  }
-  else {
-    models.removeCollectionItems(req, res, collectionname);
-    services.invalidateCache();
-  }
+  models.removeCollectionItems(this.req, this.res, collectionname);
+  services.invalidateCache();
 }
 
 // Delete upload from redis and disk
 function deleteUpload(uploadname) {
-  var req = this.req
-    , res = this.res;
-
-  if (!req.session.legit) {
-    res.setHeader('Cache-Control', 'no-cache, private, no-store,'
-      + 'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    res.redirect('/login', 301);
-  }
-  else {
-    models.removeUploadItems(req, res, uploadname);
-  }
+  models.removeUploadItems(this.req, this.res, uploadname);
 }
 
 // Show consistent 404 page
@@ -409,4 +237,3 @@ module.exports.showCollection = showCollection;
 module.exports.showUpload = showUpload;
 module.exports.updateCollection = updateCollection;
 module.exports.postUpload = postUpload;
-

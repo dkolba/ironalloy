@@ -18,11 +18,15 @@ var redis = require('redis')
 redisClient.auth(process.env.redissecret);
 
 function setETag (req, hypertext) {
-  var etag = crypto.createHash('md5').update(hypertext).digest('hex');
+  var entrypoint = req.url.split('/')[1];
 
-  if (req.method === 'GET') {
+  // Don't save etags for admin interface and static file server
+  if (req.method === 'GET' && entrypoint !== 'admin' &&
+        entrypoint !== 'public' && entrypoint !== 'login' &&
+        entrypoint !== 'logout') {
+    var etag = crypto.createHash('md5').update(hypertext).digest('hex');
     redisClient.set('etag:' + req.url, etag);
-    console.log('saved etag for ', req.url);
+    ironalloy.app.log.info('saved etag for ' + req.url);
     return etag;
   }
 }
@@ -30,10 +34,9 @@ function setETag (req, hypertext) {
 function checkETag (req, res) {
   var entrypoint = req.url.split('/')[1];
 
-  // If admin interface or static file server are concerned, send no 301
+  // If admin interface or static file server are concerned, send no 304
   if  (entrypoint === 'admin' || entrypoint === 'public' ||
          entrypoint === 'login' || entrypoint === 'logout') {
-    console.log('admin seiten kriegen kein etag');
     res.emit('next');
   }
 
@@ -43,7 +46,7 @@ function checkETag (req, res) {
       if (etag && req.headers['if-none-match'] === etag) {
         res.statusCode = 304;
         res.end();
-        console.log('sent 304 for ', req.url);
+        ironalloy.app.log.info('sent 304 for ' + req.url);
       }
       else {
         // if (etag) res.setHeader('ETag',  etag);
@@ -60,27 +63,40 @@ function removePoweredBy(req, res) {
 
 // Test whether the incoming request has a valid session and set
 // req.session.legit to true/false
+// Redirect to /login if route begins with /admin, for /login and /logout append
+// session object to req/res
 function redSession (req, res) {
-  var session = new redsess(req, res, {
-    cookieName: ironalloy.app.config.get('cookie_name'),
-    expire: ironalloy.app.config.get('cookie_expire'),
-    client: redisClient, // defaults to RedSess.client
-    keys: [ ironalloy.app.config.get('keygrip') ] // this becomes a keygrip obj
-  });
-  req.session = session;
-  res.session = session;
+  var entrypoint = req.url.split('/')[1];
 
-  req.session.get('auth', function (err, auth) {
-    if(err) throw err; // This should catch errors in the future
-    if (!auth) {
-      req.session.legit = false;
-      res.emit('next');
-    }
-    else {
-      req.session.legit = true;
-      res.emit('next');
-    }
-  });
+  if (entrypoint === 'admin' || entrypoint === 'login' ||
+        entrypoint === 'logout') {
+    var session = new redsess(req, res, {
+      cookieName: ironalloy.app.config.get('cookie_name'),
+      expire: ironalloy.app.config.get('cookie_expire'),
+      client: redisClient, // defaults to RedSess.client
+      keys: [ ironalloy.app.config.get('keygrip') ] // this becomes a keygrip obj
+    });
+    req.session = session;
+    res.session = session;
+
+    req.session.get('auth', function (err, auth) {
+      if(err) throw err; // This should catch errors in the future
+      if (!auth && entrypoint === 'admin') {
+        // req.session.legit = false;
+        // res.emit('next');
+        res.setHeader('Cache-Control', 'no-cache, private, no-store,' +
+          'must-revalidate, max-stale=0, post-check=0, pre-check=0');
+        res.redirect('/login', 301);
+      }
+      else {
+        req.session.legit = true;
+        res.emit('next');
+      }
+    });
+  }
+  else {
+    res.emit('next');
+  }
 }
 
 function cacheControl (url) {
@@ -97,7 +113,7 @@ function setCache (req, hypertext, encoding) {
 
   if (entrypoint !== 'admin' && entrypoint !== 'public' &&
         entrypoint !== 'login' && entrypoint !== 'logout') {
-    console.log('Saved ' + encoding + ' cache for ' + req.url );
+    ironalloy.app.log.info('Saved ' + encoding + ' cache for ' + req.url );
     redisClient.set('cache:' + req.url + ':' + encoding, hypertext);
   }
 
@@ -114,7 +130,6 @@ function getCache (req, res) {
   }
 
   if (req.etag) {
-    console.log('checkCache etag: ', req.etag);
     res.setHeader('ETag', req.etag);
   }
 
@@ -131,7 +146,7 @@ function getCache (req, res) {
     redisBufferClient.get(new Buffer('cache:' + req.url + ':' + req.prefenc), function (err, html) {
       if (html) {
         views.rubberStampView(req, res, html);
-        console.log('sent cached ' +  req.prefenc + ' for ', req.url);
+        ironalloy.app.log.info('sent cached ' + req.prefenc + ' for ' + req.url);
       }
       else {
         res.emit('next');
@@ -164,7 +179,10 @@ function invalidateCache () {
       multi.del('etag:/' + allpages[i]);
     }
 
-    multi.exec();
+    multi.exec(function (err) {
+      ironalloy.app.log.info('Invalidated whole cache');
+    });
+
   });
 }
 
