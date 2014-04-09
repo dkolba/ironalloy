@@ -41,36 +41,6 @@ function rubberStampView (req, res, hypertext) {
   res.end(hypertext);
 }
 
-
-function renderView2(req, res, pageobj, finalarray, mappings) {
-  var hypertext = rinse(pageobj, finalarray, mappings);
-
-  services.setETag(req, hypertext);
-
-  if (res.statusCode === 404) {
-    res.setHeader('Content-Type', 'text/html');
-    res.setHeader('etag', services.etags[req.url]);
-    res.end(hypertext);
-  }
-  else {
-    // res.writeHead(200, {
-    //   "Content-Type": "text/html",
-    //   "ETag": services.etags[req.url],
-    //   "Cache-Control": services.cacheControl(req.url)
-    // });
-    // console.log(Buffer.byteLength(hypertext, 'utf8') + " bytes");
-    zlib.gzip(hypertext, function(err, buffer) {
-        res.writeHead(200, {
-          "Content-Type": "text/html",
-          'content-encoding': 'gzip',
-          "ETag": services.etags[req.url],
-          "Cache-Control": services.cacheControl(req.url)
-        });
-      res.end(buffer);
-    });
-  // res.end(hypertext);
-  }
-}
 module.exports.renderView = renderView;
 module.exports.rubberStampView = rubberStampView;
 
