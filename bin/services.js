@@ -17,13 +17,13 @@ var redis = require('redis')
 // Connect to redis db
 redisClient.auth(process.env.redissecret);
 
-function setETag (req, hypertext) {
+function setETag (req, res, hypertext) {
   var entrypoint = req.url.split('/')[1];
 
   // Don't save etags for admin interface and static file server
   if (req.method === 'GET' && entrypoint !== 'admin' &&
         entrypoint !== 'public' && entrypoint !== 'login' &&
-        entrypoint !== 'logout') {
+        entrypoint !== 'logout' && res.statusCode !== 404) {
     var etag = crypto.createHash('md5').update(hypertext).digest('hex');
     redisClient.set('etag:' + req.url, etag);
     ironalloy.app.log.info('saved etag for ' + req.url);
@@ -108,11 +108,12 @@ function cacheControl (url) {
   }
 }
 
-function setCache (req, hypertext, encoding) {
+function setCache (req, res, hypertext, encoding) {
   var entrypoint = req.url.split('/')[1];
 
   if (entrypoint !== 'admin' && entrypoint !== 'public' &&
-        entrypoint !== 'login' && entrypoint !== 'logout') {
+        entrypoint !== 'login' && entrypoint !== 'logout' &&
+        res.statusCode !== 404) {
     ironalloy.app.log.info('Saved ' + encoding + ' cache for ' + req.url );
     redisClient.set('cache:' + req.url + ':' + encoding, hypertext);
   }

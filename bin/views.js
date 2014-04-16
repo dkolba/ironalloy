@@ -9,7 +9,7 @@ var fs = require('fs')
 
 function renderView(req, res, pageobj, finalarray, mappings) {
   var hypertext = rinse(pageobj, finalarray, mappings)
-    , etag = services.setETag(req, hypertext);
+    , etag = services.setETag(req, res, hypertext);
   if(etag) {
     res.setHeader('ETag', etag);
   }
@@ -24,10 +24,10 @@ function renderView(req, res, pageobj, finalarray, mappings) {
     if(req.prefenc === 'gzip') {
       rubberStampView(req, res, buffer);
     }
-    services.setCache(req, buffer, 'gzip');
+    services.setCache(req, res, buffer, 'gzip');
   });
 
-  services.setCache(req, hypertext, 'identity');
+  services.setCache(req, res, hypertext, 'identity');
 }
 
 
