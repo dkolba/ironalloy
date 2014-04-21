@@ -1,7 +1,14 @@
 var plates = require('plates')
   , mappings = {}
-  , setFolder = require('dishwasher').setFolder
-  , templates = setFolder('../templates/', __dirname);
+  , setFolder = require('dishwasher').setFolder;
+
+if(process.env.NODE_ENV === 'production') {
+  console.log('Production mode');
+  var templates = setFolder('../templates/', __dirname);
+}
+else {
+  var templates = setFolder('../src/templates/', __dirname);
+}
 
 mappings.admin= {};
 mappings.index = {};
