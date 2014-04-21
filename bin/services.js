@@ -1,6 +1,4 @@
 'use strict';
-// TODO: Check if gzipped data is already cached
-// TODO: Check if file is above 860 byte so gzipping makes a difference
 
 var redis = require('redis')
   , redisClient = redis.createClient(process.env.redisport, process.env.host)

@@ -77,7 +77,8 @@ var routes = {
   },
   "/login/?" : {
     get: controller.showLogin,
-    post: controller.postLogin
+    post: controller.postLogin,
+    stream: true
   },
   "/logout/?" : {
     get: controller.logout

@@ -59,28 +59,46 @@ function showLogin() {
 // Send formdata to redis and test whether username and password are valid
 function postLogin () {
   var req = this.req
-    , formdata = req.body
-    , res = this.res;
+    , res = this.res
+    , postdata = ''
+    , toobig = false;
 
-  var hash = (crypto.createHmac('sha1', key)
-                    .update(formdata.password)
-                    .digest('hex'))
-                    .toString();
-
-  // One day this should be handled by a model function.
-  services.redisClient.get('root', function(err, password) {
-    if (password && hash === password && formdata.username === 'root'){
-      req.session.set('auth', formdata.username);
-      res.setHeader('Cache-Control', 'no-cache, private, no-store,' +
-        'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-      res.redirect('/admin', 301);
-    }
-    else {
-      res.setHeader('Cache-Control', 'no-cache, private, no-store,' +
-        'must-revalidate, max-stale=0, post-check=0, pre-check=0');
-      res.redirect('/login', 301);
+  req.on("data", function(postdataChunk){
+    postdata += postdataChunk;
+    if(postdata.length > 1000) {
+      postdata = "";
+      toobig = true;
+      res.writeHead(413, {'Content-Type': 'text/plain'});
+      res.end();
+      req.connection.destroy();
+      return;
     }
   });
+
+  req.on("end", function() {
+    if(toobig) {return;}
+    var hash = (crypto.createHmac('sha1', key)
+                      .update(req.body.password)
+                      .digest('hex'))
+                      .toString();
+
+    // One day this should be handled by a model function.
+    services.redisClient.get('root', function(err, password) {
+      if (password && hash === password && req.body.username === 'root'){
+        req.session.set('auth', req.body.username);
+        res.setHeader('Cache-Control', 'no-cache, private, no-store,' +
+          'must-revalidate, max-stale=0, post-check=0, pre-check=0');
+        res.redirect('/admin', 301);
+      }
+      else {
+        res.setHeader('Cache-Control', 'no-cache, private, no-store,' +
+          'must-revalidate, max-stale=0, post-check=0, pre-check=0');
+        res.redirect('/login', 301);
+      }
+    });
+  });
+
+  req.buffer = false;
 }
 
 function showPasswd() {
