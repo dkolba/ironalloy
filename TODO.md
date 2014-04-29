@@ -1,5 +1,4 @@
-TODO: Generate /sitemap.xml
-TODO: Update modules and grunt task
+TODO: update grunt tasks
 
 AGENDA: Unit tests
 AGENDA: Compile to static site
