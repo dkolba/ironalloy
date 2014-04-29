@@ -4,7 +4,8 @@ var services = require('./services')
   , models = require('./models')
   , mappings = require('./mappings')
   , crypto = require('crypto')
-  , key = 'abcdeg';
+  , key = 'abcdeg'
+  , ironalloy = require('./ironalloy');
 
 function showIndex () {
   models.getPageObj(this.req, this.res, 'index', mappings.index,
@@ -230,6 +231,11 @@ function show500(err, req, res) {
     res.end("500 - INTERNAL SERVER ERROR \n" + err);
 }
 
+// Show sitemap.xml for Google et al
+function showSitemap (req, res) {
+  models.sitemapXML(this.res, views.renderXML);
+}
+
 module.exports.deletePage = deletePage;
 module.exports.deleteCollection = deleteCollection;
 module.exports.deleteUpload = deleteUpload;
@@ -255,3 +261,5 @@ module.exports.showCollection = showCollection;
 module.exports.showUpload = showUpload;
 module.exports.updateCollection = updateCollection;
 module.exports.postUpload = postUpload;
+module.exports.showSitemap = showSitemap;
+

@@ -30,7 +30,6 @@ function renderView(req, res, pageobj, finalarray, mappings) {
   services.setCache(req, res, hypertext, 'identity');
 }
 
-
 function rubberStampView (req, res, hypertext) {
   res.writeHead(res.statusCode || 200, {
     "Content-Type": "text/html",
@@ -41,6 +40,12 @@ function rubberStampView (req, res, hypertext) {
   res.end(hypertext);
 }
 
+function renderXML (res, xml) {
+  res.writeHead(200, {"Content-Type:": "text/xml"});
+  res.end(xml);
+}
+
 module.exports.renderView = renderView;
 module.exports.rubberStampView = rubberStampView;
+module.exports.renderXML = renderXML;
 

@@ -83,6 +83,9 @@ var routes = {
   "/logout/?" : {
     get: controller.logout
   },
+  "/sitemap.xml?" : {
+    get: controller.showSitemap
+  },
   "/:pagename/?" : {
     get: controller.showPage
   }

@@ -15,5 +15,6 @@
   "keygrip": "whathappensinvegasstaysinvegas",
   "cache_control": "max-age=1000000",
   "cookie_name": "ironalloy",
-  "cookie_expire": "600"
+  "cookie_expire": "600",
+  "domain":"localhost:8080"
 }

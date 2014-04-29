@@ -479,6 +479,33 @@ function upload (req, res) {
   req.buffer = false;
 }
 
+// Build sitemap ruffian and send to callback
+function sitemapXML(res, callback) {
+    // Fetch all existing pages from redis
+    services.redisClient.zrange('allpages', 0, -1, buildXML);
+    // Set default priority and crawl frequency for search engines
+    var priority = 0.5
+    , freq = 'daily'
+    , xml = '<?xml version="1.0" encoding="UTF-8"?><urlset ' +
+            'xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+
+    function buildXML (err, allpages) {
+      // Replace 'index' page since this page should be a secret
+      allpages[allpages.indexOf('index')] = '';
+      for (var i in allpages) {
+        xml += '<url>';
+        xml += '<loc>'+ ironalloy.app.config.get('domain') + '/' +
+          allpages[i] + '</loc>';
+        xml += '<changefreq>'+ freq +'</changefreq>';
+        xml += '<priority>'+ priority +'</priority>';
+        xml += '</url>';
+        i++;
+      }
+      xml += '</urlset>';
+      callback(res, xml);
+    }
+}
+
 module.exports.getPageObj = getPageObj;
 module.exports.getAdminObj = getAdminObj;
 module.exports.getAdminComponents = getAdminComponents;
@@ -492,3 +519,5 @@ module.exports.updatePageItems = updatePageItems;
 module.exports.updateComponentItems = updateComponentItems;
 module.exports.updateComponentCollection = updateComponentCollection;
 module.exports.upload = upload;
+module.exports.sitemapXML= sitemapXML;
+
