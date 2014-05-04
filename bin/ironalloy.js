@@ -11,6 +11,14 @@ var http = require('http')
 // Load nconf configuration file
 ironalloy.config.use('file', {file: __dirname + "/../config.json"});
 
+// Conditionally load st configuration depending on environment variable
+if(process.env.NODE_ENV === 'production') {
+  var staticdir = ironalloy.config.get('static_production_dir');
+}
+else {
+  var staticdir = ironalloy.config.get('static_development_dir');
+}
+
 // Connect to redis db
 services.redisClient.auth(process.env.redissecret);
 
@@ -23,7 +31,7 @@ ironalloy.use(flatiron.plugins.http, {
 
 // Use st as file server
 ironalloy.use(flatiron.plugins.static, {
-  dir: __dirname + ironalloy.config.get('static_dir'),
+  dir: __dirname + staticdir,
   url: ironalloy.config.get('static_url')
 });
 

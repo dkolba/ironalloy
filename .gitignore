@@ -17,8 +17,7 @@ bower_components/
 public/
 .DS_Store
 somefile.log
-dist/
 !src/templates
 templates/*
-src/scripts/vendor/
-src/styles/vendor/
+src/public/scripts/vendor/
+src/public/styles/vendor/

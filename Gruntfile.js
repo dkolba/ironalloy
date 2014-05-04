@@ -1,52 +1,35 @@
+'use strict';
+
 module.exports = function(grunt) {
   grunt.initConfig({
-
-    clean: ['dist', 'templates'],
-
-    useminPrepare: {
-      options: {
-        dest: 'dist'
-      },
-      html: ['src/**/*.html']
+    clean: {
+      before: ['templates/', 'public/'],
+      after: ['.tmp']
     },
-
-    cssmin: {
-    },
-
     copy: {
       main: {
-        files: [
-          {expand: true,
-           cwd: 'src/',
-           // flatten: true,
-           src: ['**/*.html'],
-           // src: ['src/**/*'],
-           dest: 'dist/',
-           filter: 'isFile'} // flattens results to a single level
-        ]
-      },
-      assets: {
-        files: [
-          {expand: true,
-           cwd: 'dist/public/',
-           src: ['js/**', 'css/**'],
-           dest: 'public/'},
-
-          {expand: true,
-           flatten: true,
-           cwd: 'dist/',
-           src: ['templates/**'],
-           dest: 'templates/',
-           filter: 'isFile'}
-        ]
+        files: [{
+          expand: true,
+          cwd:'src/templates/',
+          src: ['**'],
+          dest: 'templates/',
+          filter: 'isFile'
+        },
+        {
+          expand: true,
+          cwd:'./',
+          src: ['src/public/**', '!src/public/**/*.js', '!src/public/**/*.css'],
+          dest: 'public/',
+          filter: 'isFile'
+        }]
       },
       bowerjsdeps: {
         files: [
           {expand: true,
            flatten: true,
-           src: ['bower_components/jquery/dist/jquery.js',
+           src: ['bower_components/jquery/jquery.js',
                  'bower_components/bootstrap/dist/js/bootstrap.js',],
-           dest: 'src/scripts/vendor/',
+           dest: 'src/public/scripts/vendor/',
            filter: 'isFile'} // flattens results to a single level
         ]
       },
@@ -56,42 +39,55 @@ module.exports = function(grunt) {
            flatten: true,
            src: ['bower_components/bootstrap/dist/css/bootstrap.css',
                  'bower_components/bootstrap/dist/css/bootstrap-theme.css'],
-           dest: 'src/styles/vendor/',
+           dest: 'src/public/styles/vendor/',
            filter: 'isFile'} // flattens results to a single level
         ]
       },
     },
-
+    useminPrepare: {
+      html: 'templates/**/*.html',
+      options: {
+        root: './',
+        dest: './'
+      }
+    },
+    usemin: {
+      html: 'templates/**/*.html',
+      options: {
+        assetsDirs: ['./']
+      }
+    },
+    uglify: {
+      otpions: {
+        preserveComments: 'some'
+      }
+    },
+    cssmin: {
+      options: {
+        keepSpecialComments: 1
+      }
+    },
+    rev: {
+      main: {
+        files: {
+          source: ['public/**/*.{js,css}']
+        }
+      }
+    },
     htmlmin: {
-      dist: {
+      main: {
+        files: [{
+          expand: true,
+          cwd: 'templates/',
+          src: '{,*/}*.html',
+          dest: 'templates/'
+        }],
         options: {
           removeComments: true,
           collapseWhitespace: true
-        },
-        files: [{
-          expand: true,
-          cwd: 'dist',
-          src: '{,*/}*.html',
-          dest: 'dist'
-        }]
+        }
       }
     },
-
-    rev: {
-      files: {
-        src: ['dist/**/*.{js,css,png,jpg}']
-      }
-    },
-
-    usemin: {
-      html: ['dist/{,*/}*.html'],
-      css: ['dist/{,*/}*.css'],
-      options: {
-        basedir: 'dist',
-        dirs: ['dist']
-      }
-    },
-
     mochaTest: {
       test: {
         options: {
@@ -102,29 +98,18 @@ module.exports = function(grunt) {
     }
   });
 
+  grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-usemin');
+  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
-  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-htmlmin');
-  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-rev');
-  grunt.loadNpmTasks('grunt-mocha-test');
 
-  grunt.registerTask('minify-js', ['uglify']);
-  grunt.registerTask('minify-css', ['cssmin']);
   grunt.registerTask('test', ['mochaTest']);
-  grunt.registerTask('default', ['clean',
-                                 'copy:main',
-                                 'copy:bowerjsdeps',
-                                 'copy:bowercssdeps',
-                                 'useminPrepare',
-                                 'concat',
-                                 'cssmin',
-                                 'uglify',
-                                 'rev',
-                                 'usemin',
-                                 'htmlmin',
-                                 'copy:assets']);
+  grunt.registerTask('default', ['clean:before', 'copy', 'useminPrepare',
+    'concat', 'uglify', 'cssmin', 'rev', 'usemin', 'htmlmin',
+    'clean:after']);
 };
