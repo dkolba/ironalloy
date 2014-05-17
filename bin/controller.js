@@ -18,6 +18,27 @@ function showPage(pagename) {
     views.renderView);
 }
 
+function prextPage(pagename) {
+  var res = this.res
+    , prext = this.req.url.split('/')
+    , direction;
+  console.log(direction);
+  if (prext[2] === 'next') {
+    direction = 1;
+  }
+  if (prext[2] === 'prev') {
+    direction = -1;
+  }
+  services.redisClient.zrank('allpages', pagename, function(err, rank) {
+    if (err) console.log(err);
+    services.redisClient.zrange('allpages', rank + direction, rank + direction,
+      function(err, prextpage) {
+        if (err) console.log(err);
+        res.redirect('/' + prextpage[0], 302);
+      });
+  });
+}
+
 // Fetch random page from redis and render template
 function randomPage() {
   var req = this.req
@@ -262,4 +283,5 @@ module.exports.showUpload = showUpload;
 module.exports.updateCollection = updateCollection;
 module.exports.postUpload = postUpload;
 module.exports.showSitemap = showSitemap;
+module.exports.prextPage = prextPage;
 
