@@ -3,7 +3,7 @@
 module.exports = function(grunt) {
   grunt.initConfig({
     clean: {
-      before: ['templates/'],
+      before: ['templates/', 'public/css/', 'public/js/'],
       after: ['.tmp']
     },
     copy: {
