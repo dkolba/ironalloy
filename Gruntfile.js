@@ -27,7 +27,7 @@ module.exports = function(grunt) {
         files: [
           {expand: true,
            flatten: true,
-           src: ['bower_components/jquery/jquery.js',
+           src: ['bower_components/jquery/dist/jquery.js',
                  'bower_components/bootstrap/dist/js/bootstrap.js',],
            dest: 'src/public/scripts/vendor/',
            filter: 'isFile'} // flattens results to a single level
